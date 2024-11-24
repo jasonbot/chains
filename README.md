@@ -1,2 +1,1 @@
-# chains
-Chained iterators in Go
+# Chained Iterators in Go

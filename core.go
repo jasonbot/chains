@@ -4,6 +4,16 @@ import (
 	"iter"
 )
 
+func Each[T any](in []T) func(func(T) bool) {
+	return func(yield func(T) bool) {
+		for _, v := range in {
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
 func Map[T, V any](mapFunc func(T) V, input iter.Seq[T]) func(func(V) bool) {
 	return func(yield func(V) bool) {
 		for v := range input {

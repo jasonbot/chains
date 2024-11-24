@@ -9,6 +9,16 @@ type IterableSequence[T any] struct {
 	iterable iter.Seq[T]
 }
 
+func Each[T any](in []T) func(func(T) bool) {
+	return func(yield func(T) bool) {
+		for _, v := range in {
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
 func Chain[T any](in []T) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: func(yield func(T) bool) {

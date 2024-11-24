@@ -75,7 +75,7 @@ func TestChainSome(t *testing.T) {
 
 	expectedSum := 54
 
-	if sum := Reduce(func(a, b int) int { return a + b }, Chain(secondArray).Each); sum != expectedSum {
+	if sum := Reduce(func(a, b int) int { return a + b }, Each(secondArray)); sum != expectedSum {
 		t.Fatalf("Sums not expected: %v != %v", sum, 18)
 	}
 }

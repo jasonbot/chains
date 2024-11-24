@@ -10,7 +10,7 @@ func TestMapBasic(t *testing.T) {
 	secondArray := Chain(array).Map(mapFunc).A()
 
 	if len(array) != len(secondArray) {
-		t.Fatalf("Array %v to same length as %v", array, secondArray)
+		t.Fatalf("Array %v not same length as %v", array, secondArray)
 	}
 
 	for index, val := range array {
@@ -75,7 +75,7 @@ func TestChainSome(t *testing.T) {
 
 	expectedSum := 54
 
-	if sum := Reduce(func(a, b int) int { return a + b }, Each(secondArray)); sum != expectedSum {
+	if sum := Chain(secondArray).Reduce(func(a, b int) int { return a + b }); sum != expectedSum {
 		t.Fatalf("Sums not expected: %v != %v", sum, 18)
 	}
 }

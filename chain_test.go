@@ -1,6 +1,7 @@
 package chains
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -77,5 +78,21 @@ func TestChainSome(t *testing.T) {
 
 	if sum := Chain(secondArray).Reduce(func(a, b int) int { return a + b }); sum != expectedSum {
 		t.Fatalf("Sums not expected: %v != %v", sum, 18)
+	}
+}
+
+func TestMapConvertType(t *testing.T) {
+	mapFunc := func(i int) string { return fmt.Sprintf("%v", i) }
+	array := []int{1, 2, 3, 4}
+	secondArray := Junction2[int, string](Chain(array)).Map(mapFunc).A()
+
+	if len(array) != len(secondArray) {
+		t.Fatalf("Array %v not same length as %v", array, secondArray)
+	}
+
+	for index, val := range array {
+		if mapFunc(val) != secondArray[index] {
+			t.Fatalf("Items at index %v not equal: %v, %v", index, mapFunc(val), secondArray[index])
+		}
 	}
 }

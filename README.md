@@ -49,6 +49,7 @@ returnArray := Junction2[int, string](
         func(i int) bool {
             return i%2 == 0
         },
-    )).Map(mapFunc).A()
+    ),
+).Map(mapFunc).A()
 // returnArray == []string{"2", "4"}
 ```

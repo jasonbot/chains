@@ -24,6 +24,12 @@ func Chain[T any](in []T) *IterableSequence[T] {
 	}
 }
 
+func ChainFromIterator[T any](inFunc func(func(T) bool)) *IterableSequence[T] {
+	return &IterableSequence[T]{
+		iterable: inFunc,
+	}
+}
+
 func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: func(yield func(T) bool) {
@@ -33,6 +39,12 @@ func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
 				}
 			}
 		},
+	}
+}
+
+func Chain2FromIterator[T, V any](inFunc func(func(T) bool)) *IterableSequence2[T, V] {
+	return &IterableSequence2[T, V]{
+		iterable: inFunc,
 	}
 }
 

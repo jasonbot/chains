@@ -29,7 +29,7 @@ The Go templating system is a little limited, so you can't do something like thi
 secondArray := Chain(
     []int{8, 10, 145, 3},
 ).Map(
-    func(i int) str {
+    func(i int) string {
         return fmt.Sprintf("%v", i)
     },
 )
@@ -42,14 +42,15 @@ You need to give the templating system a hint with a junction, telling it there'
 ```go
 mapFunc := func(i int) string { return fmt.Sprintf("%v", i) }
 array := []int{1, 2, 3, 4}
-returnArray := Junction2[int, string](
-    Chain(
-        array,
-    ).Filter(
-        func(i int) bool {
-            return i%2 == 0
-        },
-    ),
-).Map(mapFunc).A()
-// returnArray == []string{"2", "4"}
+// Converting type in .Map(), so the generic has to be aware of both types
+returnArray := Junction2[int, string](Chain(
+    array,
+).Filter(
+    func(i int) bool {
+        return i%2 == 0
+    },
+)).Map(
+    mapFunc,
+).A()
+// secondreturnArrayArray == []string{"2", "4"}
 ```

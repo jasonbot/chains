@@ -35,7 +35,7 @@ secondArray := Chain(
 )
 ```
 
-The generic system does not allow for templated methods, so chaining methoids and expecting to go from `Chain[T]` to `Chain[V]` isn't possible.
+The generic system does not allow for templated methods, so chaining methods and expecting to go from `Chain[T]` to `Chain[V]` isn't possible.
 
 You need to give the templating system a hint with a junction, telling it there's 2 types involved:
 

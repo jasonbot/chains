@@ -120,7 +120,9 @@ func Rotate[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 			}
 		}
 
-		yield(firstItem)
+		if !yield(firstItem) {
+			return
+		}
 	}
 }
 
@@ -233,7 +235,9 @@ func GroupBy[T any, K comparable](keyFunc func(T) K, input iter.Seq[T]) func(fun
 
 		for {
 			if !yield(key, func(yieldInner func(value T) bool) {
-				yieldInner(currentItem)
+				if !yieldInner(currentItem) {
+					return
+				}
 				for {
 					currentItem, ok = next()
 					if !ok {
@@ -245,7 +249,9 @@ func GroupBy[T any, K comparable](keyFunc func(T) K, input iter.Seq[T]) func(fun
 						key = newKey
 						return
 					} else {
-						yieldInner(currentItem)
+						if !yieldInner(currentItem) {
+							return
+						}
 					}
 				}
 			}) {

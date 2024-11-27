@@ -199,7 +199,9 @@ func Flatten[T any](sequences iter.Seq[iter.Seq[T]]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for seq := range sequences {
 			for item := range seq {
-				yield(item)
+				if !yield(item) {
+					return
+				}
 			}
 		}
 	}
@@ -210,7 +212,9 @@ func FlattenArgs[T any](sequences ...iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for _, seq := range sequences {
 			for item := range seq {
-				yield(item)
+				if !yield(item) {
+					return
+				}
 			}
 		}
 	}

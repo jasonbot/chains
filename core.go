@@ -20,7 +20,7 @@ func Each[T any](in []T) iter.Seq[T] {
 	}
 }
 
-// Map takes ai iterator and applies a function to each element.
+// Map takes an iterator and applies a function to each element.
 func Map[T, V any](mapFunc func(T) V, input iter.Seq[T]) iter.Seq[V] {
 	return func(yield func(V) bool) {
 		if mapFunc == nil || input == nil {
@@ -73,6 +73,38 @@ func Filter[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 			}
 		}
 	}
+}
+
+// All takes an iterator and returns true if the sequence is empty or all
+// items match the predicate
+func All[T any](filterFunc func(T) bool, input iter.Seq[T]) bool {
+	if filterFunc == nil || input == nil {
+		return true
+	}
+
+	for v := range input {
+		if !filterFunc(v) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Any takes an iterator and returns true if the sequence is empty or any
+// item matches the predicate
+func Any[T any](filterFunc func(T) bool, input iter.Seq[T]) bool {
+	if filterFunc == nil || input == nil {
+		return true
+	}
+
+	for v := range input {
+		if filterFunc(v) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Tap visits each item with the visitor function but passes each item along.
@@ -153,7 +185,9 @@ func ZipLongest[T, V, K any](zipFunc func(T, V) K, fillerOne T, fillerTwo V, inp
 				}
 			}
 
-			yield(zipFunc(one, two))
+			if !yield(zipFunc(one, two)) {
+				return
+			}
 		}
 	}
 }

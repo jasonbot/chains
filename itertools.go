@@ -17,7 +17,7 @@ func Count[T any](input iter.Seq[T]) int {
 // If a duplicate shows up further in the sequence, it will show up again.
 // For example, {1 1 2 2 3 3 4} will yield {1 2 3 4} but
 // {1 1 2 2 1 1 4} will yield {1 2 1 4}
-func Uniq[T comparable](offset int, input iter.Seq[T]) func(func(T) bool) {
+func Uniq[T comparable](offset int, input iter.Seq[T]) iter.Seq[T] {
 	first := true
 	var lastValue T
 
@@ -35,8 +35,8 @@ func Uniq[T comparable](offset int, input iter.Seq[T]) func(func(T) bool) {
 }
 
 // Cycle yields every item in the sequence indefinitely, starting from the
-// beginning once exhuasted.
-func Cycle[T any](input iter.Seq[T]) func(func(T) bool) {
+// beginning once exhuasted. Iamgine an unbound Repeat.
+func Cycle[T any](input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		items := make([]T, 0, 100)
 
@@ -59,8 +59,8 @@ func Cycle[T any](input iter.Seq[T]) func(func(T) bool) {
 }
 
 // Repeat will yield every element of the provided sequence up to repeats
-// times.
-func Repeat[T any](repeats int, input iter.Seq[T]) func(func(T) bool) {
+// times; 3, {1 2 3} -> { 1 2 3 1 2 3 1 2 3}
+func Repeat[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		items := make([]T, 0, 100)
 
@@ -88,8 +88,44 @@ func Repeat[T any](repeats int, input iter.Seq[T]) func(func(T) bool) {
 	}
 }
 
+// Lengthen will yield every element of the provided sequence up to repeats
+// times; 3, {1 2 3} -> { 1 1 1 2 2 2 3 3 3 }
+func Lengthen[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for item := range input {
+			for range repeats {
+				if !yield(item) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// Rotate will yield every element of the provided sequence, rotating the first
+// element to the end; { 1 2 3 } -> { 2 3 1 }
+func Rotate[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		first := true
+		var firstItem T
+
+		for item := range input {
+			if first {
+				first = false
+				firstItem = item
+			} else {
+				if !yield(item) {
+					return
+				}
+			}
+		}
+
+		yield(firstItem)
+	}
+}
+
 // PastOffset starts iterating at the zero-based index
-func PastOffset[T any](offset int, input iter.Seq[T]) func(func(T) bool) {
+func PastOffset[T any](offset int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		index := 0
 
@@ -105,7 +141,7 @@ func PastOffset[T any](offset int, input iter.Seq[T]) func(func(T) bool) {
 }
 
 // UntilOffset stops iterating at the zero-based index
-func UntilOffset[T any](offset int, input iter.Seq[T]) func(func(T) bool) {
+func UntilOffset[T any](offset int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		index := 0
 
@@ -123,7 +159,7 @@ func UntilOffset[T any](offset int, input iter.Seq[T]) func(func(T) bool) {
 }
 
 // TakeWhile stops iterating once the filterFunc returns false
-func TakeWhile[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) bool) {
+func TakeWhile[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for item := range input {
 			if !filterFunc(item) || !yield(item) {
@@ -134,7 +170,7 @@ func TakeWhile[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) b
 }
 
 // TakeWhile does not start iterating until the filterFunc returns true the first time
-func TakeAfter[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) bool) {
+func TakeAfter[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		found := false
 
@@ -153,9 +189,9 @@ func TakeAfter[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) b
 	}
 }
 
-// Car returns CAR/CDR, the first item from the iterable followed by an
+// FirstAndRest returns CAR/CDR, the first item from the iterable followed by an
 // iterable for the rest of it.
-func Car[T any](input iter.Seq[T]) (T, func(func(T) bool)) {
+func FirstAndRest[T any](input iter.Seq[T]) (T, iter.Seq[T]) {
 	next, stop := iter.Pull(input)
 
 	first, ok := next()

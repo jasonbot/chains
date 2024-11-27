@@ -126,6 +126,10 @@ func (iter *IterableSequence[T]) Filter(filterFunc func(T) bool) *IterableSequen
 	return iter
 }
 
+func (iter *IterableSequence[T]) Count() int {
+	return Count(iter.iterable)
+}
+
 func (iter *IterableSequence[T]) A() []T {
 	if iter == nil {
 		return nil

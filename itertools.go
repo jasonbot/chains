@@ -59,7 +59,7 @@ func Cycle[T any](input iter.Seq[T]) iter.Seq[T] {
 }
 
 // Repeat will yield every element of the provided sequence up to repeats
-// times; 3, {1 2 3} -> { 1 2 3 1 2 3 1 2 3}
+// times; 3 x {1 2 3} -> { 1 2 3 1 2 3 1 2 3}
 func Repeat[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		items := make([]T, 0, 100)
@@ -89,7 +89,7 @@ func Repeat[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 }
 
 // Lengthen will yield every element of the provided sequence up to repeats
-// times; 3, {1 2 3} -> { 1 1 1 2 2 2 3 3 3 }
+// times; 3 x {1 2 3} -> { 1 1 1 2 2 2 3 3 3 }
 func Lengthen[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for item := range input {

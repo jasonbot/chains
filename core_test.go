@@ -23,15 +23,15 @@ func TestGroupBy(t *testing.T) {
 
 		if !All(
 			Map2(
-				func(a, b int) bool {
-					return a == b
-				},
 				ZipLongest(
 					Each(computedVals),
 					Each(vals[index]),
 					-1,
 					-1,
 				),
+				func(a, b int) bool {
+					return a == b
+				},
 			),
 			func(f bool) bool {
 				return f

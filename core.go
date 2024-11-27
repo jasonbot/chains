@@ -59,14 +59,14 @@ func Reduce[T any](collectFunc func(T, T) T, input iter.Seq[T]) T {
 
 // Filter takes an iterator and only yields the items that pass the filter
 // function check.
-func Filter[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
+func Filter[T any](predicateFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
-		if filterFunc == nil || input == nil {
+		if predicateFunc == nil || input == nil {
 			return
 		}
 
 		for v := range input {
-			if filterFunc(v) {
+			if predicateFunc(v) {
 				if !yield(v) {
 					return
 				}
@@ -77,13 +77,13 @@ func Filter[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 
 // All takes an iterator and returns true if the sequence is empty or all
 // items match the predicate
-func All[T any](filterFunc func(T) bool, input iter.Seq[T]) bool {
-	if filterFunc == nil || input == nil {
+func All[T any](predicateFunc func(T) bool, input iter.Seq[T]) bool {
+	if predicateFunc == nil || input == nil {
 		return true
 	}
 
 	for v := range input {
-		if !filterFunc(v) {
+		if !predicateFunc(v) {
 			return false
 		}
 	}
@@ -93,13 +93,13 @@ func All[T any](filterFunc func(T) bool, input iter.Seq[T]) bool {
 
 // Any takes an iterator and returns true if the sequence is empty or any
 // item matches the predicate
-func Any[T any](filterFunc func(T) bool, input iter.Seq[T]) bool {
-	if filterFunc == nil || input == nil {
+func Any[T any](predicateFunc func(T) bool, input iter.Seq[T]) bool {
+	if predicateFunc == nil || input == nil {
 		return true
 	}
 
 	for v := range input {
-		if filterFunc(v) {
+		if predicateFunc(v) {
 			return true
 		}
 	}

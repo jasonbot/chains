@@ -25,11 +25,16 @@ func TestGroupBy(t *testing.T) {
 			func(f bool) bool {
 				return f
 			},
-			ZipLongest(func(v1, v2 int) bool {
-				return v1 == v2
-			}, 0, 0,
+			ZipLongest(
+				func(v1, v2 int) bool {
+					return v1 == v2
+				},
+				-1,
+				-1,
 				Each(computedVals),
-				Each(vals[index]))) {
+				Each(vals[index]),
+			),
+		) {
 			t.Fatalf("Values not equal: %v != %v", computedVals, vals[index])
 		}
 

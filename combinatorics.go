@@ -21,27 +21,30 @@ func oneAtATime[T any](vals []T) iter.Seq2[T, []T] {
 	}
 }
 
-func combinations[T any](sofar, vals []T, length int, yield func([]T) bool) {
+func orderings[T any](sofar, vals []T, length int, yield func([]T) bool) {
 	for val, rest := range oneAtATime(vals) {
-		currentcombination := append(sofar, val)
+		currentordering := append(sofar, val)
 		if length > 0 && len(rest) > 0 {
-			combinations(currentcombination, rest, length-1, yield)
+			orderings(currentordering, rest, length-1, yield)
 		} else {
-			if !yield(currentcombination) {
+			if !yield(currentordering) {
 				return
 			}
 		}
 	}
 }
 
-func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
+// OrderingsOfLength will yield all combinations without replacement of
+// a specified length
+func OrderingsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		combinations([]T{}, vals, length, yield)
+		orderings([]T{}, vals, length, yield)
 	}
 }
 
-func Combinations[T any](vals []T) iter.Seq[[]T] {
+// Orderings will yield all possible orderings of the slice
+func Orderings[T any](vals []T) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		combinations([]T{}, vals, len(vals), yield)
+		orderings([]T{}, vals, len(vals), yield)
 	}
 }

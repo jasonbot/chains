@@ -22,7 +22,7 @@ type IterableSequence2[T, V any] struct {
 
 // IterableSequenceJunction is an opaque wrapper on an iterator to allow for chained methods,
 // useful when going from one type to another like doing a .Map from int to string.
-type IterableSequenceJunction2[T any, V comparable] struct {
+type IterableSequenceJunction2[T any, V any, K comparable] struct {
 	iterable iter.Seq2[T, V]
 }
 

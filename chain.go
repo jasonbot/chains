@@ -11,7 +11,7 @@ type IterableSequence[T any] struct {
 
 // IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods,
 // useful when going from one type to another like doing a .Map from int to string.
-type IterableSequence2[T, V any] struct {
+type IterableSequence2[T any, V comparable] struct {
 	iterable iter.Seq[T]
 }
 
@@ -36,7 +36,7 @@ func ChainFromIterator[T any](inFunc func(func(T) bool)) *IterableSequence[T] {
 }
 
 // Chain2 creates an chainable IterableSequence2 from an existing slice.
-func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
+func Chain2[T any, V comparable](in []T) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: func(yield func(T) bool) {
 			for _, v := range in {
@@ -49,7 +49,7 @@ func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
 }
 
 // Chain2 creates an chainable IterableSequence2 from an existing iterator.
-func Chain2FromIterator[T, V any](inFunc func(func(T) bool)) *IterableSequence2[T, V] {
+func Chain2FromIterator[T any, V comparable](inFunc func(func(T) bool)) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: inFunc,
 	}
@@ -57,7 +57,7 @@ func Chain2FromIterator[T, V any](inFunc func(func(T) bool)) *IterableSequence2[
 
 // Junction2 is used to go from a single-type Chain to a dual-type Chain2.
 // This conversion is needed is doing a Map/Reduce that converts type.
-func Junction2[T, V any](in *IterableSequence[T]) *IterableSequence2[T, V] {
+func Junction2[T any, V comparable](in *IterableSequence[T]) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: in.iterable,
 	}
@@ -177,6 +177,18 @@ func (iter *IterableSequence2[T, V]) ReduceWithZero(reduceFunc func(V, T) V, zer
 	}
 
 	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
+}
+
+func (iter *IterableSequence2[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *IterableSequence[T]] {
+	return func(yield func(V, *IterableSequence[T]) bool) {
+		for k, items := range GroupBy[T, V](keyFunc, iter.iterable) {
+			if !yield(k, &IterableSequence[T]{
+				iterable: items,
+			}) {
+				return
+			}
+		}
+	}
 }
 
 func (iter *IterableSequence2[T, V]) A() []T {

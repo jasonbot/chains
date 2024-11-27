@@ -5,7 +5,7 @@ import (
 )
 
 // Map2 takes an iterator and applies a function to each element.
-func Map2[T, V, K any](mapFunc func(T, V) K, input iter.Seq2[T, V]) iter.Seq[K] {
+func Map2[T, V, K any](input iter.Seq2[T, V], mapFunc func(T, V) K) iter.Seq[K] {
 	return func(yield func(K) bool) {
 		if mapFunc == nil || input == nil {
 			return
@@ -21,7 +21,7 @@ func Map2[T, V, K any](mapFunc func(T, V) K, input iter.Seq2[T, V]) iter.Seq[K] 
 
 // Filter2 takes an iterator and only yields the items that pass the filter
 // function check.
-func Filter2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) iter.Seq2[T, V] {
+func Filter2[T, V any](input iter.Seq2[T, V], predicateFunc func(T, V) bool) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		if predicateFunc == nil || input == nil {
 			return
@@ -39,7 +39,7 @@ func Filter2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) ite
 
 // All2 takes an iterator and returns true if the sequence is empty or all
 // items match the predicate
-func All2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) bool {
+func All2[T, V any](input iter.Seq2[T, V], predicateFunc func(T, V) bool) bool {
 	if predicateFunc == nil || input == nil {
 		return true
 	}
@@ -55,7 +55,7 @@ func All2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) bool {
 
 // Any2 takes an iterator and returns true if the sequence is empty or any
 // item matches the predicate
-func Any2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) bool {
+func Any2[T, V any](input iter.Seq2[T, V], predicateFunc func(T, V) bool) bool {
 	if predicateFunc == nil || input == nil {
 		return true
 	}
@@ -70,7 +70,7 @@ func Any2[T, V any](predicateFunc func(T, V) bool, input iter.Seq2[T, V]) bool {
 }
 
 // Tap2 visits each item with the visitor function but passes each item along.
-func Tap2[T, V any](visitor func(T, V), input iter.Seq2[T, V]) iter.Seq2[T, V] {
+func Tap2[T, V any](input iter.Seq2[T, V], visitor func(T, V)) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		if visitor == nil {
 			for t, v := range input {

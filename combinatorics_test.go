@@ -16,7 +16,7 @@ func TestPermutations(t *testing.T) {
 		{3, 2, 1},
 	}
 
-	for ordering, expected := range ZipLongest(nil, nil, Permutations(intSeq), Each(expectedValues)) {
+	for ordering, expected := range ZipLongest(Permutations(intSeq), Each(expectedValues), nil, nil) {
 		if !slices.Equal(ordering, expected) {
 			t.Fatalf("Arrays %v != %v", ordering, expected)
 		}
@@ -55,7 +55,7 @@ func TestPermutationsWithReplacement(t *testing.T) {
 		{3, 3, 3},
 	}
 
-	for ordering, expected := range ZipLongest(nil, nil, PermutationsWithReplacement(intSeq), Each(expectedValues)) {
+	for ordering, expected := range ZipLongest(PermutationsWithReplacement(intSeq), Each(expectedValues), nil, nil) {
 		if !slices.Equal(ordering, expected) {
 			t.Fatalf("Arrays %v != %v", ordering, expected)
 		}

@@ -15,17 +15,6 @@ type IterableSequenceJunction[T any, V comparable] struct {
 	iterable iter.Seq[T]
 }
 
-// IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods.
-type IterableSequence2[T, V any] struct {
-	iterable iter.Seq2[T, V]
-}
-
-// IterableSequenceJunction is an opaque wrapper on an iterator to allow for chained methods,
-// useful when going from one type to another like doing a .Map from int to string.
-type IterableSequenceJunction2[T any, V any, K comparable] struct {
-	iterable iter.Seq2[T, V]
-}
-
 // ChainFromSlice creates an chainable IterableSequence from a slice.
 func ChainFromSlice[T any](in []T) *IterableSequence[T] {
 	return &IterableSequence[T]{
@@ -74,13 +63,6 @@ func ChainJunction[T any, V comparable](in *IterableSequence[T]) *IterableSequen
 	}
 }
 
-// ChainJunction2 is used to add a third type to the chain; e.g. to map to an unrelated type.
-func ChainJunction2[T any, V, K comparable](in *IterableSequence2[T, V]) *IterableSequenceJunction2[T, V, K] {
-	return &IterableSequenceJunction2[T, V, K]{
-		iterable: in.iterable,
-	}
-}
-
 // Each is the final point to get an iterator out of an IterableSequence.
 // After chaining your various .Map(...).Filter(..)... do a `range .Each()`
 // to iterate over it in your code.
@@ -104,7 +86,7 @@ func (iter *IterableSequence[T]) Tap(visitor func(T)) *IterableSequence[T] {
 		return nil
 	}
 
-	iter.iterable = Tap(visitor, iter.iterable)
+	iter.iterable = Tap(iter.iterable, visitor)
 	return iter
 }
 
@@ -115,7 +97,7 @@ func (iter *IterableSequence[T]) Map(mapFunc func(T) T) *IterableSequence[T] {
 		return nil
 	}
 
-	iter.iterable = Map(mapFunc, iter.iterable)
+	iter.iterable = Map(iter.iterable, mapFunc)
 	return iter
 }
 
@@ -127,7 +109,7 @@ func (iter *IterableSequence[T]) Reduce(reduceFunc func(T, T) T) T {
 		return zeroValue
 	}
 
-	return Reduce(reduceFunc, iter.iterable)
+	return Reduce(iter.iterable, reduceFunc)
 }
 
 func (iter *IterableSequence[T]) ReduceWithZero(reduceFunc func(T, T) T, zeroValue T) T {
@@ -136,20 +118,20 @@ func (iter *IterableSequence[T]) ReduceWithZero(reduceFunc func(T, T) T, zeroVal
 		return zeroValue
 	}
 
-	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
+	return ReduceWithZero(iter.iterable, reduceFunc, zeroValue)
 }
 
 func (iter *IterableSequence[T]) Filter(filterFunc func(T) bool) *IterableSequence[T] {
-	iter.iterable = Filter(filterFunc, iter.iterable)
+	iter.iterable = Filter(iter.iterable, filterFunc)
 	return iter
 }
 
 func (iter *IterableSequence[T]) All(predicateFunc func(T) bool) bool {
-	return All(predicateFunc, iter.iterable)
+	return All(iter.iterable, predicateFunc)
 }
 
 func (iter *IterableSequence[T]) Any(predicateFunc func(T) bool) bool {
-	return Any(predicateFunc, iter.iterable)
+	return Any(iter.iterable, predicateFunc)
 }
 
 func (iter *IterableSequence[T]) Count() int {
@@ -164,7 +146,7 @@ func (iter *IterableSequence[T]) Zip(i *IterableSequence[T]) *IterableSequence2[
 
 func (iter *IterableSequence[T]) ZipLongest(zeroValue T, i *IterableSequence[T]) *IterableSequence2[T, T] {
 	return &IterableSequence2[T, T]{
-		iterable: ZipLongest(zeroValue, zeroValue, iter.iterable, i.iterable),
+		iterable: ZipLongest(iter.iterable, i.iterable, zeroValue, zeroValue),
 	}
 }
 
@@ -198,7 +180,7 @@ func (iter *IterableSequenceJunction[T, V]) Map(mapFunc func(T) V) *IterableSequ
 	}
 
 	return &IterableSequence[V]{
-		iterable: Map(mapFunc, iter.iterable),
+		iterable: Map(iter.iterable, mapFunc),
 	}
 }
 
@@ -209,7 +191,7 @@ func (iter *IterableSequenceJunction[T, V]) Reduce(reduceFunc func(V, T) V) V {
 	}
 
 	var zeroValue V
-	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
+	return ReduceWithZero(iter.iterable, reduceFunc, zeroValue)
 }
 
 func (iter *IterableSequenceJunction[T, V]) ReduceWithZero(reduceFunc func(V, T) V, zeroValue V) V {
@@ -218,7 +200,7 @@ func (iter *IterableSequenceJunction[T, V]) ReduceWithZero(reduceFunc func(V, T)
 		return zeroValue
 	}
 
-	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
+	return ReduceWithZero(iter.iterable, reduceFunc, zeroValue)
 }
 
 func (iter *IterableSequenceJunction[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *IterableSequence[T]] {

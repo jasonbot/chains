@@ -22,20 +22,20 @@ func TestGroupBy(t *testing.T) {
 		}
 
 		if !All(
-			func(f bool) bool {
-				return f
-			},
 			Map2(
 				func(a, b int) bool {
 					return a == b
 				},
 				ZipLongest(
-					-1,
-					-1,
 					Each(computedVals),
 					Each(vals[index]),
+					-1,
+					-1,
 				),
 			),
+			func(f bool) bool {
+				return f
+			},
 		) {
 			t.Fatalf("Values not equal: %v != %v", computedVals, vals[index])
 		}

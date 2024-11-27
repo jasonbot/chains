@@ -169,8 +169,9 @@ func TakeWhile[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 	}
 }
 
-// TakeWhile does not start iterating until the filterFunc returns true the first time
-func TakeAfter[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
+// DropUntil does not start producing values until the filterFunc returns true
+// the first time
+func DropUntil[T any](filterFunc func(T) bool, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		found := false
 

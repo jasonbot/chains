@@ -34,7 +34,8 @@ func TestGroupBy(t *testing.T) {
 					-1,
 					Each(computedVals),
 					Each(vals[index]),
-				)),
+				),
+			),
 		) {
 			t.Fatalf("Values not equal: %v != %v", computedVals, vals[index])
 		}

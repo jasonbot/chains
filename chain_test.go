@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 )
 
@@ -42,10 +43,8 @@ func TestFilterBasic(t *testing.T) {
 		t.Fatal("Array not right shape")
 	}
 
-	for index, val := range expectedOutput {
-		if val != secondArray[index] {
-			t.Fatalf("Items at index %v not equal: %v, %v", index, val, secondArray[index])
-		}
+	if !slices.Equal[[]int](secondArray, expectedOutput) {
+		t.Fatalf("Items not equal: %v, %v", secondArray, expectedOutput)
 	}
 }
 

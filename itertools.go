@@ -35,7 +35,7 @@ func Uniq[T comparable](offset int, input iter.Seq[T]) iter.Seq[T] {
 }
 
 // Cycle yields every item in the sequence indefinitely, starting from the
-// beginning once exhuasted. Iamgine an unbound Repeat.
+// beginning once exhausted. Iamgine an unbound Repeat.
 func Cycle[T any](input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		items := make([]T, 0, 100)

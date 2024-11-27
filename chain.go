@@ -152,7 +152,7 @@ func (iter *IterableSequence[T]) ZipLongest(zeroValue T, i *IterableSequence[T])
 	}
 }
 
-func (iter *IterableSequence[T]) A() []T {
+func (iter *IterableSequence[T]) Slice() []T {
 	if iter == nil {
 		return nil
 	}
@@ -223,7 +223,7 @@ func (iter *IterableSequenceJunction[T, V]) Zip(i *IterableSequence[V]) iter.Seq
 	return Zip[T, V](iter.iterable, i.iterable)
 }
 
-func (iter *IterableSequenceJunction[T, V]) A() []T {
+func (iter *IterableSequenceJunction[T, V]) Slice() []T {
 	if iter == nil {
 		return nil
 	}

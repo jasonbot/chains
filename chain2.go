@@ -15,6 +15,13 @@ type IterableSequenceJunction2[T any, V any, K comparable] struct {
 	iterable iter.Seq2[T, V]
 }
 
+// Chain2 is used to add a third type to the chain; e.g. to map to an unrelated type.
+func Chain2FromIterator[T, V any](in iter.Seq2[T, V]) *IterableSequence2[T, V] {
+	return &IterableSequence2[T, V]{
+		iterable: in,
+	}
+}
+
 // ChainJunction2 is used to add a third type to the chain; e.g. to map to an unrelated type.
 func ChainJunction2[T any, V, K comparable](in *IterableSequence2[T, V]) *IterableSequenceJunction2[T, V, K] {
 	return &IterableSequenceJunction2[T, V, K]{

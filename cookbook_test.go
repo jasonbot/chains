@@ -3,6 +3,7 @@ package chains
 import (
 	"maps"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func TestFilter(t *testing.T) {
 	filtered := []int{3, 4}
 
 	if !slices.Equal[[]int](
-		ChainFromSlice(toFilter).Filter(func(i int) bool { return i >= 3 }).A(),
+		ChainFromSlice(toFilter).Filter(func(i int) bool { return i >= 3 }).Slice(),
 		filtered,
 	) {
 		t.Fatalf("%v did not filter to %v", toFilter, filtered)
@@ -43,13 +44,21 @@ func TestCounterWithReduce(t *testing.T) {
 }
 
 func TestCounterWithGroupBy(t *testing.T) {
-	returnCodes := []int{200, 201, 202, 200, 200, 302, 301, 403, 200, 210, 550, 500, 535, 200}
+	returnCodes := []int{
+		200, 201, 202, 200, 200,
+		302, 301,
+		403,
+		200, 210,
+		550, 500, 535,
+		200,
+		404, 404, 404,
+	}
 
 	counts := map[int]int{}
 	expectedCounts := map[int]int{
 		200: 8,
 		300: 2,
-		400: 1,
+		400: 4,
 		500: 3,
 	}
 
@@ -64,5 +73,73 @@ func TestCounterWithGroupBy(t *testing.T) {
 
 	if !maps.Equal(counts, expectedCounts) {
 		t.Fatalf("%v != %v", counts, expectedCounts)
+	}
+}
+
+func TestAllStreetFighterMatches(t *testing.T) {
+	regularFighters := []string{"Ryu", "Chun Li", "Guile", "E. Honda"}
+	bosses := []string{"Sagat", "Vega", "M. Bison"}
+
+	allExpectedFights := []string{
+		"Ryu vs. Chun Li",
+		"Ryu vs. Guile",
+		"Ryu vs. E. Honda",
+		"Chun Li vs. Ryu",
+		"Chun Li vs. Guile",
+		"Chun Li vs. E. Honda",
+		"Guile vs. Ryu",
+		"Guile vs. Chun Li",
+		"Guile vs. E. Honda",
+		"E. Honda vs. Ryu",
+		"E. Honda vs. Chun Li",
+		"E. Honda vs. Guile",
+		"Ryu vs. Sagat",
+		"Chun Li vs. Sagat",
+		"Guile vs. Sagat",
+		"E. Honda vs. Sagat",
+		"Ryu vs. Vega",
+		"Chun Li vs. Vega",
+		"Guile vs. Vega",
+		"E. Honda vs. Vega",
+		"Ryu vs. M. Bison",
+		"Chun Li vs. M. Bison",
+		"Guile vs. M. Bison",
+		"E. Honda vs. M. Bison",
+	}
+
+	// Each combination of players without replacement
+	singlePlayerFights := ChainJunctionFromIterator[[]string, string](
+		PermutationsOfLength(regularFighters, 2),
+	).Map(
+		func(names []string) string {
+			return strings.Join(names, " vs. ")
+		},
+	)
+
+	// Trick to get pairwise fights from two lists -- lengthen the one by
+	// the number of elements in the other, then cycle.
+	bossFights := Chain2FromIterator(
+		Zip(
+			Cycle(Each(regularFighters)),
+			Lengthen(
+				Each(bosses),
+				len(regularFighters),
+			),
+		),
+	).Map(
+		func(p1, p2 string) string {
+			return strings.Join([]string{p1, p2}, " vs. ")
+		},
+	)
+
+	allFights := ChainFromIterator(
+		FlattenArgs(
+			singlePlayerFights.Each(),
+			bossFights.Each(),
+		),
+	).Slice()
+
+	if !slices.Equal(allFights, allExpectedFights) {
+		t.Fatalf("%v != %v", allFights, allExpectedFights)
 	}
 }

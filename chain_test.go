@@ -9,7 +9,7 @@ import (
 func TestMapBasic(t *testing.T) {
 	mapFunc := func(i int) int { return i * 2 }
 	array := []int{1, 2, 3, 4}
-	secondArray := ChainFromSlice(array).Map(mapFunc).A()
+	secondArray := ChainFromSlice(array).Map(mapFunc).Slice()
 
 	if len(array) != len(secondArray) {
 		t.Fatalf("Array %v not same length as %v", array, secondArray)
@@ -37,7 +37,7 @@ func TestFilterBasic(t *testing.T) {
 	filterFunc := func(i int) bool { return i%2 == 0 }
 	array := []int{1, 2, 3, 4}
 	expectedOutput := []int{2, 4}
-	secondArray := ChainFromSlice(array).Filter(filterFunc).A()
+	secondArray := ChainFromSlice(array).Filter(filterFunc).Slice()
 
 	if len(secondArray) != len(expectedOutput) {
 		t.Fatal("Array not right shape")
@@ -60,7 +60,7 @@ func TestChainSome(t *testing.T) {
 		func(i int) bool {
 			return i%2 == 0
 		},
-	).A()
+	).Slice()
 	expectedOutput := []int{24, 30}
 
 	if len(secondArray) != len(expectedOutput) {
@@ -83,7 +83,7 @@ func TestChainSome(t *testing.T) {
 func TestMapConvertType(t *testing.T) {
 	mapFunc := func(i int) string { return fmt.Sprintf("%v", i) }
 	array := []int{1, 2, 3, 4}
-	secondArray := ChainJunction[int, string](ChainFromSlice(array)).Map(mapFunc).A()
+	secondArray := ChainJunction[int, string](ChainFromSlice(array)).Map(mapFunc).Slice()
 
 	if len(array) != len(secondArray) {
 		t.Fatalf("Array %v not same length as %v", array, secondArray)

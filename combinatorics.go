@@ -28,7 +28,7 @@ func permutations[T any](sofar, vals []T, length int, yield func([]T) bool, incl
 		}
 
 		currentordering := append(sofar, val)
-		if length > 0 && len(rest) > 0 {
+		if length > 1 && len(rest) > 0 {
 			exhausted = exhausted || permutations(currentordering, rest, length-1, yield, includeall, exhausted)
 
 			if !exhausted && includeall && !yield(currentordering) {
@@ -61,6 +61,10 @@ func oneAtATimeWithReplacement[T any](vals []T) iter.Seq2[T, []T] {
 func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func([]T) bool, includeall bool, exhausted bool) bool {
 	currentordering := make([]T, len(sofar)+1)
 	copy(currentordering, sofar)
+
+	if length == 0 {
+		return exhausted
+	}
 
 	for val, rest := range oneAtATimeWithReplacement(vals) {
 		if exhausted {

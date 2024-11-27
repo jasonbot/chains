@@ -90,3 +90,29 @@ func Tap2[T, V any](input iter.Seq2[T, V], visitor func(T, V)) iter.Seq2[T, V] {
 		}
 	}
 }
+
+// Flatten takes any number of iterables and combines them into one
+func Flatten2[T, V any](sequences iter.Seq[iter.Seq2[T, V]]) iter.Seq2[T, V] {
+	return func(yield func(T, V) bool) {
+		for seq := range sequences {
+			for t, v := range seq {
+				if !yield(t, v) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// FlattenArgs takes any number of iterable args and combines them into one
+func FlattenArgs2[T, V any](sequences ...iter.Seq2[T, V]) iter.Seq2[T, V] {
+	return func(yield func(T, V) bool) {
+		for _, seq := range sequences {
+			for t, v := range seq {
+				if !yield(t, v) {
+					return
+				}
+			}
+		}
+	}
+}

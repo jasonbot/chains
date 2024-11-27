@@ -17,12 +17,16 @@ returnArray := ChainFromSlice(
     func(i int) bool {
         return i%2 == 0
     },
-).A()
+).Slice()
 // returnArray == []int{24, 30}
 
 ```
 
 This library is ment to fill a void in some of the niceness I get in Python and Ruby -- you'll note there is a whole subset of [Python's `itertoools` library](https://docs.python.org/3/library/itertools.html) here.
+
+## Examples
+
+Interesting examples live in [`cookbook_test`](cookbook_test.go).
 
 ## Warts
 
@@ -55,6 +59,6 @@ returnArray := ChainJunction[int, string](Chain(
     },
 )).Map(
     mapFunc,
-).A()
+).Slice()
 // secondreturnArrayArray == []string{"2", "4"}
 ```

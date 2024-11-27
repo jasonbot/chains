@@ -37,8 +37,34 @@ func (iter *IterableSequence2[T, V]) Each(yield func(T, V) bool) {
 	}
 }
 
+// FirstVal turns the 2-value iter into a 1-value iter, using the first
+func (iter *IterableSequence2[T, V]) FirstVal() *IterableSequence[T] {
+	return &IterableSequence[T]{
+		iterable: func(yield func(T) bool) {
+			for t, _ := range iter.iterable {
+				if !yield(t) {
+					return
+				}
+			}
+		},
+	}
+}
+
+// SecondVal turns the 2-value iter into a 1-value iter, using the second
+func (iter *IterableSequence2[T, V]) SecondVal() *IterableSequence[V] {
+	return &IterableSequence[V]{
+		iterable: func(yield func(V) bool) {
+			for _, v := range iter.iterable {
+				if !yield(v) {
+					return
+				}
+			}
+		},
+	}
+}
+
 // Tap is a borrowed Rubyism -- it takes each item and passes it along, but
-// feeds it to a function to visit first. Useful for calling method, sanitizing
+// feeds it to a function to visit first. Useful for calling methods, sanitizing
 // fields, etc.
 func (iter *IterableSequence2[T, V]) Tap(visitor func(T, V)) *IterableSequence2[T, V] {
 	if iter == nil {

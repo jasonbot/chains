@@ -79,7 +79,7 @@ func (iter *IterableSequence[T]) Each(yield func(T) bool) {
 }
 
 // Tap is a borrowed Rubyism -- it takes each item and passes it along, but
-// feeds it to a function to visit first. Useful for calling method, sanitizing
+// feeds it to a function to visit first. Useful for calling methods, sanitizing
 // fields, etc.
 func (iter *IterableSequence[T]) Tap(visitor func(T)) *IterableSequence[T] {
 	if iter == nil {

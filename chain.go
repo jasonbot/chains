@@ -9,14 +9,25 @@ type IterableSequence[T any] struct {
 	iterable iter.Seq[T]
 }
 
-// IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods,
+// IterableSequenceJunction is an opaque wrapper on an iterator to allow for chained methods,
 // useful when going from one type to another like doing a .Map from int to string.
-type IterableSequence2[T any, V comparable] struct {
+type IterableSequenceJunction[T any, V comparable] struct {
 	iterable iter.Seq[T]
 }
 
-// Chain creates an chainable IterableSequence from a slice.
-func Chain[T any](in []T) *IterableSequence[T] {
+// IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods.
+type IterableSequence2[T, V any] struct {
+	iterable iter.Seq2[T, V]
+}
+
+// IterableSequenceJunction is an opaque wrapper on an iterator to allow for chained methods,
+// useful when going from one type to another like doing a .Map from int to string.
+type IterableSequenceJunction2[T any, V comparable] struct {
+	iterable iter.Seq2[T, V]
+}
+
+// ChainFromSlice creates an chainable IterableSequence from a slice.
+func ChainFromSlice[T any](in []T) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: func(yield func(T) bool) {
 			for _, v := range in {
@@ -35,9 +46,9 @@ func ChainFromIterator[T any](inFunc func(func(T) bool)) *IterableSequence[T] {
 	}
 }
 
-// Chain2 creates an chainable IterableSequence2 from an existing slice.
-func Chain2[T any, V comparable](in []T) *IterableSequence2[T, V] {
-	return &IterableSequence2[T, V]{
+// ChainJunctionFromSlice creates an chainable IterableSequence2 from an existing slice.
+func ChainJunctionFromSlice[T any, V comparable](in []T) *IterableSequenceJunction[T, V] {
+	return &IterableSequenceJunction[T, V]{
 		iterable: func(yield func(T) bool) {
 			for _, v := range in {
 				if !yield(v) {
@@ -48,17 +59,17 @@ func Chain2[T any, V comparable](in []T) *IterableSequence2[T, V] {
 	}
 }
 
-// Chain2 creates an chainable IterableSequence2 from an existing iterator.
-func Chain2FromIterator[T any, V comparable](inFunc func(func(T) bool)) *IterableSequence2[T, V] {
-	return &IterableSequence2[T, V]{
+// ChainJunctionFromIterator creates an chainable IterableSequence2 from an existing iterator.
+func ChainJunctionFromIterator[T any, V comparable](inFunc func(func(T) bool)) *IterableSequenceJunction[T, V] {
+	return &IterableSequenceJunction[T, V]{
 		iterable: inFunc,
 	}
 }
 
-// Junction2 is used to go from a single-type Chain to a dual-type Chain2.
+// ChainJunction is used to go from a single-type Chain to a dual-type Chain2.
 // This conversion is needed is doing a Map/Reduce that converts type.
-func Junction2[T any, V comparable](in *IterableSequence[T]) *IterableSequence2[T, V] {
-	return &IterableSequence2[T, V]{
+func ChainJunction[T any, V comparable](in *IterableSequence[T]) *IterableSequenceJunction[T, V] {
+	return &IterableSequenceJunction[T, V]{
 		iterable: in.iterable,
 	}
 }
@@ -126,8 +137,20 @@ func (iter *IterableSequence[T]) Filter(filterFunc func(T) bool) *IterableSequen
 	return iter
 }
 
+func (iter *IterableSequence[T]) All(predicateFunc func(T) bool) bool {
+	return All(predicateFunc, iter.iterable)
+}
+
+func (iter *IterableSequence[T]) Any(predicateFunc func(T) bool) bool {
+	return Any(predicateFunc, iter.iterable)
+}
+
 func (iter *IterableSequence[T]) Count() int {
 	return Count(iter.iterable)
+}
+
+func (iter *IterableSequence[T]) Zip(i *IterableSequence[T]) iter.Seq2[T, T] {
+	return Zip(iter.iterable, i.iterable)
 }
 
 func (iter *IterableSequence[T]) A() []T {
@@ -144,7 +167,7 @@ func (iter *IterableSequence[T]) A() []T {
 	return returnValues
 }
 
-func (iter *IterableSequence2[T, V]) Chain() *IterableSequence[T] {
+func (iter *IterableSequenceJunction[T, V]) Chain() *IterableSequence[T] {
 	if iter == nil {
 		return nil
 	}
@@ -154,7 +177,7 @@ func (iter *IterableSequence2[T, V]) Chain() *IterableSequence[T] {
 	}
 }
 
-func (iter *IterableSequence2[T, V]) Map(mapFunc func(T) V) *IterableSequence[V] {
+func (iter *IterableSequenceJunction[T, V]) Map(mapFunc func(T) V) *IterableSequence[V] {
 	if iter == nil {
 		return nil
 	}
@@ -164,7 +187,7 @@ func (iter *IterableSequence2[T, V]) Map(mapFunc func(T) V) *IterableSequence[V]
 	}
 }
 
-func (iter *IterableSequence2[T, V]) Reduce(reduceFunc func(V, T) V) V {
+func (iter *IterableSequenceJunction[T, V]) Reduce(reduceFunc func(V, T) V) V {
 	if iter == nil {
 		var zeroValue V
 		return zeroValue
@@ -174,7 +197,7 @@ func (iter *IterableSequence2[T, V]) Reduce(reduceFunc func(V, T) V) V {
 	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
 }
 
-func (iter *IterableSequence2[T, V]) ReduceWithZero(reduceFunc func(V, T) V, zeroValue V) V {
+func (iter *IterableSequenceJunction[T, V]) ReduceWithZero(reduceFunc func(V, T) V, zeroValue V) V {
 	if iter == nil {
 		var zeroValue V
 		return zeroValue
@@ -183,7 +206,7 @@ func (iter *IterableSequence2[T, V]) ReduceWithZero(reduceFunc func(V, T) V, zer
 	return ReduceWithZero(reduceFunc, zeroValue, iter.iterable)
 }
 
-func (iter *IterableSequence2[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *IterableSequence[T]] {
+func (iter *IterableSequenceJunction[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *IterableSequence[T]] {
 	return func(yield func(V, *IterableSequence[T]) bool) {
 		for k, items := range GroupBy[T, V](keyFunc, iter.iterable) {
 			if !yield(k, &IterableSequence[T]{
@@ -195,7 +218,11 @@ func (iter *IterableSequence2[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *It
 	}
 }
 
-func (iter *IterableSequence2[T, V]) A() []T {
+func (iter *IterableSequenceJunction[T, V]) Zip(i *IterableSequence[V]) iter.Seq2[T, V] {
+	return Zip[T, V](iter.iterable, i.iterable)
+}
+
+func (iter *IterableSequenceJunction[T, V]) A() []T {
 	if iter == nil {
 		return nil
 	}

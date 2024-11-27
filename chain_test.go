@@ -8,7 +8,7 @@ import (
 func TestMapBasic(t *testing.T) {
 	mapFunc := func(i int) int { return i * 2 }
 	array := []int{1, 2, 3, 4}
-	secondArray := Chain(array).Map(mapFunc).A()
+	secondArray := ChainFromSlice(array).Map(mapFunc).A()
 
 	if len(array) != len(secondArray) {
 		t.Fatalf("Array %v not same length as %v", array, secondArray)
@@ -26,7 +26,7 @@ func TestReduceBasic(t *testing.T) {
 	reduceFunc := func(i, j int) int { return i + j }
 	endValue := 10
 
-	sumTotal := Chain(array).Reduce(reduceFunc)
+	sumTotal := ChainFromSlice(array).Reduce(reduceFunc)
 	if sumTotal != endValue {
 		t.Fatalf("Reduce failed: %v != %v", sumTotal, endValue)
 	}
@@ -36,7 +36,7 @@ func TestFilterBasic(t *testing.T) {
 	filterFunc := func(i int) bool { return i%2 == 0 }
 	array := []int{1, 2, 3, 4}
 	expectedOutput := []int{2, 4}
-	secondArray := Chain(array).Filter(filterFunc).A()
+	secondArray := ChainFromSlice(array).Filter(filterFunc).A()
 
 	if len(secondArray) != len(expectedOutput) {
 		t.Fatal("Array not right shape")
@@ -51,7 +51,7 @@ func TestFilterBasic(t *testing.T) {
 
 func TestChainSome(t *testing.T) {
 	array := []int{8, 10, 145, 3}
-	secondArray := Chain(
+	secondArray := ChainFromSlice(
 		array,
 	).Map(
 		func(i int) int {
@@ -76,7 +76,7 @@ func TestChainSome(t *testing.T) {
 
 	expectedSum := 54
 
-	if sum := Chain(secondArray).Reduce(func(a, b int) int { return a + b }); sum != expectedSum {
+	if sum := ChainFromSlice(secondArray).Reduce(func(a, b int) int { return a + b }); sum != expectedSum {
 		t.Fatalf("Sums not expected: %v != %v", sum, 18)
 	}
 }
@@ -84,7 +84,7 @@ func TestChainSome(t *testing.T) {
 func TestMapConvertType(t *testing.T) {
 	mapFunc := func(i int) string { return fmt.Sprintf("%v", i) }
 	array := []int{1, 2, 3, 4}
-	secondArray := Junction2[int, string](Chain(array)).Map(mapFunc).A()
+	secondArray := ChainJunction[int, string](ChainFromSlice(array)).Map(mapFunc).A()
 
 	if len(array) != len(secondArray) {
 		t.Fatalf("Array %v not same length as %v", array, secondArray)

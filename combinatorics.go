@@ -29,11 +29,11 @@ func permutations[T any](sofar, vals []T, length int, yield func([]T) bool, incl
 
 		currentordering := append(sofar, val)
 		if length > 1 && len(rest) > 0 {
-			exhausted = exhausted || permutations(currentordering, rest, length-1, yield, includeall, exhausted)
-
 			if !exhausted && includeall && !yield(currentordering) {
 				return true
 			}
+
+			exhausted = exhausted || permutations(currentordering, rest, length-1, yield, includeall, exhausted)
 		} else {
 			if exhausted || !yield(currentordering) {
 				return true
@@ -73,11 +73,11 @@ func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func(
 
 		currentordering[len(currentordering)-1] = val
 		if length > 1 {
-			exhausted = exhausted || permutationsWithReplacement(currentordering, rest, length-1, yield, includeall, exhausted)
-
 			if !exhausted && includeall && !yield(currentordering) {
 				return true
 			}
+
+			exhausted = exhausted || permutationsWithReplacement(currentordering, rest, length-1, yield, includeall, exhausted)
 		} else {
 			if exhausted || !yield(currentordering) {
 				return true
@@ -85,6 +85,14 @@ func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func(
 		}
 	}
 	return false
+}
+
+// AllCombinations will yield all combinations without replacement of
+// every subset of items in the sequence
+func AllCombinations[T any](vals []T) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		permutations([]T{}, vals, len(vals), yield, true, false)
+	}
 }
 
 // PermutationsOfLength will yield all combinations without replacement of

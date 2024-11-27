@@ -4,6 +4,8 @@ import (
 	"iter"
 )
 
+// Each wraps a slice as an iterable. Only iteresting when applying
+// higher-level functions like Map or Filter.
 func Each[T any](in []T) func(func(T) bool) {
 	return func(yield func(T) bool) {
 		if in == nil {
@@ -18,6 +20,7 @@ func Each[T any](in []T) func(func(T) bool) {
 	}
 }
 
+// Map takes ai iterator and applies a function to each element.
 func Map[T, V any](mapFunc func(T) V, input iter.Seq[T]) func(func(V) bool) {
 	return func(yield func(V) bool) {
 		if mapFunc == nil || input == nil {
@@ -32,6 +35,8 @@ func Map[T, V any](mapFunc func(T) V, input iter.Seq[T]) func(func(V) bool) {
 	}
 }
 
+// ReduceWithZero takes an initial value, a reduce function, and an iterable
+// and returns the final result of applying the function iteratively.
 func ReduceWithZero[T, V any](collectFunc func(V, T) V, zeroValue V, input iter.Seq[T]) V {
 	if collectFunc == nil || input == nil {
 		var zeroValue V
@@ -44,12 +49,16 @@ func ReduceWithZero[T, V any](collectFunc func(V, T) V, zeroValue V, input iter.
 	return zeroValue
 }
 
+// Reduce takes a reduce function, and an iterable and returns the final result
+// of applying the function iteratively.
 func Reduce[T any](collectFunc func(T, T) T, input iter.Seq[T]) T {
-	var zeroValue T
+	zero, next := Car(input)
 
-	return ReduceWithZero(collectFunc, zeroValue, input)
+	return ReduceWithZero(collectFunc, zero, next)
 }
 
+// Filter takes an iterator and only yields the items that pass the filter
+// function check.
 func Filter[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) bool) {
 	return func(yield func(T) bool) {
 		if filterFunc == nil || input == nil {
@@ -66,6 +75,7 @@ func Filter[T any](filterFunc func(T) bool, input iter.Seq[T]) func(func(T) bool
 	}
 }
 
+// Tap visits each item with the visitor function but passes each item along.
 func Tap[T any](visitor func(T), input iter.Seq[T]) func(func(T) bool) {
 	return func(yield func(T) bool) {
 		if visitor == nil {

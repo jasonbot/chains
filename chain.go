@@ -4,14 +4,18 @@ import (
 	"iter"
 )
 
+// IterableSequence is an opaque wrapper on an iterator to allow for chained methods.
 type IterableSequence[T any] struct {
 	iterable iter.Seq[T]
 }
 
+// IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods,
+// useful when going from one type to another like doing a .Map from int to string.
 type IterableSequence2[T, V any] struct {
 	iterable iter.Seq[T]
 }
 
+// Chain creates an chainable IterableSequence from a slice.
 func Chain[T any](in []T) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: func(yield func(T) bool) {
@@ -24,12 +28,14 @@ func Chain[T any](in []T) *IterableSequence[T] {
 	}
 }
 
+// Chain creates an chainable IterableSequence from an existing iterator.
 func ChainFromIterator[T any](inFunc func(func(T) bool)) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: inFunc,
 	}
 }
 
+// Chain2 creates an chainable IterableSequence2 from an existing slice.
 func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: func(yield func(T) bool) {
@@ -42,18 +48,24 @@ func Chain2[T, V any](in []T) *IterableSequence2[T, V] {
 	}
 }
 
+// Chain2 creates an chainable IterableSequence2 from an existing iterator.
 func Chain2FromIterator[T, V any](inFunc func(func(T) bool)) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: inFunc,
 	}
 }
 
+// Junction2 is used to go from a single-type Chain to a dual-type Chain2.
+// This conversion is needed is doing a Map/Reduce that converts type.
 func Junction2[T, V any](in *IterableSequence[T]) *IterableSequence2[T, V] {
 	return &IterableSequence2[T, V]{
 		iterable: in.iterable,
 	}
 }
 
+// Each is the final point to get an iterator out of an IterableSequence.
+// After chaining your various .Map(...).Filter(..)... do a `range .Each()`
+// to iterate over it in your code.
 func (iter *IterableSequence[T]) Each(yield func(T) bool) {
 	if iter == nil {
 		return
@@ -66,6 +78,9 @@ func (iter *IterableSequence[T]) Each(yield func(T) bool) {
 	}
 }
 
+// Tap is a borrowed Rubyism -- it takes each item and passes it along, but
+// feeds it to a function to visit first. Useful for calling method, sanitizing
+// fields, etc.
 func (iter *IterableSequence[T]) Tap(visitor func(T)) *IterableSequence[T] {
 	if iter == nil {
 		return nil
@@ -75,6 +90,8 @@ func (iter *IterableSequence[T]) Tap(visitor func(T)) *IterableSequence[T] {
 	return iter
 }
 
+// Map is the classic function map -- takes a function, applies it to each
+// item in the iterator, and yields that result
 func (iter *IterableSequence[T]) Map(mapFunc func(T) T) *IterableSequence[T] {
 	if iter == nil {
 		return nil
@@ -84,6 +101,8 @@ func (iter *IterableSequence[T]) Map(mapFunc func(T) T) *IterableSequence[T] {
 	return iter
 }
 
+// Reduce is the classic function reduce -- takes a function, applies it to each
+// item in the iterator along with its prior value, and yields that result
 func (iter *IterableSequence[T]) Reduce(reduceFunc func(T, T) T) T {
 	if iter == nil {
 		var zeroValue T

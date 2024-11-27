@@ -4,12 +4,12 @@ import (
 	"iter"
 )
 
-// IterableSequence2 is an opaque wrapper on an iterator to allow for chained methods.
+// IterableSequence2 is an opaque wrapper on a two-item iterator to allow for chained methods.
 type IterableSequence2[T, V any] struct {
 	iterable iter.Seq2[T, V]
 }
 
-// IterableSequenceJunction is an opaque wrapper on an iterator to allow for chained methods,
+// IterableSequenceJunction is an opaque wrapper on a two-item iterator to allow for chained methods,
 // useful when going from one type to another like doing a .Map from int to string.
 type IterableSequenceJunction2[T any, V any, K comparable] struct {
 	iterable iter.Seq2[T, V]
@@ -22,7 +22,7 @@ func ChainJunction2[T any, V, K comparable](in *IterableSequence2[T, V]) *Iterab
 	}
 }
 
-// Each is the final point to get an iterator out of an IterableSequence.
+// Each is the final point to get a two-item iterator out of an IterableSequence2.
 // After chaining your various .Map(...).Filter(..)... do a `range .Each()`
 // to iterate over it in your code.
 func (iter *IterableSequence2[T, V]) Each(yield func(T, V) bool) {

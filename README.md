@@ -51,7 +51,7 @@ You need to give the templating system a hint with a junction, telling it there'
 mapFunc := func(i int) string { return fmt.Sprintf("%v", i) }
 array := []int{1, 2, 3, 4}
 // Converting type in .Map(), so the generic has to be aware of both types
-returnArray := ChainJunction[int, string](Chain(
+returnArray := ChainJunction[int, string](ChainFromSlice(
     array,
 ).Filter(
     func(i int) bool {

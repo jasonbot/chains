@@ -66,14 +66,16 @@ func ChainJunction[T any, V comparable](in *IterableSequence[T]) *IterableSequen
 // Each is the final point to get an iterator out of an IterableSequence.
 // After chaining your various .Map(...).Filter(..)... do a `range .Each()`
 // to iterate over it in your code.
-func (iter *IterableSequence[T]) Each(yield func(T) bool) {
-	if iter == nil {
-		return
-	}
-
-	for v := range iter.iterable {
-		if !yield(v) {
+func (iter *IterableSequence[T]) Each() func(func(T) bool) {
+	return func(yield func(T) bool) {
+		if iter == nil {
 			return
+		}
+
+		for v := range iter.iterable {
+			if !yield(v) {
+				return
+			}
 		}
 	}
 }
@@ -203,15 +205,17 @@ func (iter *IterableSequenceJunction[T, V]) ReduceWithZero(reduceFunc func(V, T)
 	return ReduceWithZero(iter.iterable, reduceFunc, zeroValue)
 }
 
-func (iter *IterableSequenceJunction[T, V]) GroupBy(keyFunc func(T) V) iter.Seq2[V, *IterableSequence[T]] {
-	return func(yield func(V, *IterableSequence[T]) bool) {
-		for k, items := range GroupBy[T, V](keyFunc, iter.iterable) {
-			if !yield(k, &IterableSequence[T]{
-				iterable: items,
-			}) {
-				return
+func (iter *IterableSequenceJunction[T, V]) GroupBy(keyFunc func(T) V) *IterableSequence2[V, *IterableSequence[T]] {
+	return &IterableSequence2[V, *IterableSequence[T]]{
+		iterable: func(yield func(V, *IterableSequence[T]) bool) {
+			for k, items := range GroupBy[T, V](keyFunc, iter.iterable) {
+				if !yield(k, &IterableSequence[T]{
+					iterable: items,
+				}) {
+					return
+				}
 			}
-		}
+		},
 	}
 }
 

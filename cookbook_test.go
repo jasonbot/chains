@@ -41,3 +41,28 @@ func TestCounterWithReduce(t *testing.T) {
 		t.Fatalf("%v did not filter to %v", toCount, expectedVal)
 	}
 }
+
+func TestCounterWithGroupBy(t *testing.T) {
+	returnCodes := []int{200, 201, 202, 200, 200, 302, 301, 403, 200, 210, 550, 500, 535, 200}
+
+	counts := map[int]int{}
+	expectedCounts := map[int]int{
+		200: 8,
+		300: 2,
+		400: 1,
+		500: 3,
+	}
+
+	r := ChainJunctionFromSlice[int, int](returnCodes).GroupBy(
+		func(responseCode int) int {
+			return responseCode - (responseCode % 100)
+		},
+	)
+	for httpCodeFamily, codes := range r.Each() {
+		counts[httpCodeFamily] += codes.Count()
+	}
+
+	if !maps.Equal(counts, expectedCounts) {
+		t.Fatalf("%v != %v", counts, expectedCounts)
+	}
+}

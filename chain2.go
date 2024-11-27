@@ -25,14 +25,16 @@ func ChainJunction2[T any, V, K comparable](in *IterableSequence2[T, V]) *Iterab
 // Each is the final point to get a two-item iterator out of an IterableSequence2.
 // After chaining your various .Map(...).Filter(..)... do a `range .Each()`
 // to iterate over it in your code.
-func (iter *IterableSequence2[T, V]) Each(yield func(T, V) bool) {
-	if iter == nil {
-		return
-	}
-
-	for t, v := range iter.iterable {
-		if !yield(t, v) {
+func (iter *IterableSequence2[T, V]) Each() func(func(T, V) bool) {
+	return func(yield func(T, V) bool) {
+		if iter == nil {
 			return
+		}
+
+		for t, v := range iter.iterable {
+			if !yield(t, v) {
+				return
+			}
 		}
 	}
 }

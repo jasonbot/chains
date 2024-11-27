@@ -35,21 +35,6 @@ func Map[T, V any](mapFunc func(T) V, input iter.Seq[T]) iter.Seq[V] {
 	}
 }
 
-// Map2 takes an k/v iterator and applies a function to each element.
-func Map2[T, V, K any](mapFunc func(T, V) K, input iter.Seq2[T, V]) iter.Seq[K] {
-	return func(yield func(K) bool) {
-		if mapFunc == nil || input == nil {
-			return
-		}
-
-		for t, v := range input {
-			if !yield(mapFunc(t, v)) {
-				return
-			}
-		}
-	}
-}
-
 // ReduceWithZero takes an initial value, a reduce function, and an iterable
 // and returns the final result of applying the function iteratively.
 func ReduceWithZero[T, V any](collectFunc func(V, T) V, zeroValue V, input iter.Seq[T]) V {
@@ -146,7 +131,7 @@ func Tap[T any](visitor func(T), input iter.Seq[T]) iter.Seq[T] {
 
 // Zip takes two sequences and combines them into one (up to length of
 // shortest)
-func Zip[T, V any](input1 iter.Seq[T], input2 iter.Seq[V]) func(func(T, V) bool) {
+func Zip[T, V any](input1 iter.Seq[T], input2 iter.Seq[V]) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		nextOne, oneDone := iter.Pull(input1)
 		defer oneDone()
@@ -176,7 +161,7 @@ func Zip[T, V any](input1 iter.Seq[T], input2 iter.Seq[V]) func(func(T, V) bool)
 // ZipLongest takes two sequences and combines them into one (up to length
 // of longest) via zipfunc, using fillerOne/fillerTwo as defaults if one is
 // exhausted
-func ZipLongest[T, V any](fillerOne T, fillerTwo V, input1 iter.Seq[T], input2 iter.Seq[V]) func(func(T, V) bool) {
+func ZipLongest[T, V any](fillerOne T, fillerTwo V, input1 iter.Seq[T], input2 iter.Seq[V]) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		nextOne, oneDone := iter.Pull(input1)
 		defer oneDone()

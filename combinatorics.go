@@ -21,11 +21,26 @@ func oneAtATime[T any](vals []T) iter.Seq2[T, []T] {
 	}
 }
 
-func orderings[T any](sofar, vals []T, length int, yield func([]T) bool) {
+func oneAtATimeWithReplacement[T any](vals []T) iter.Seq2[T, []T] {
+	return func(yield func(T, []T) bool) {
+		for index := range len(vals) {
+			oneVal := vals[index]
+
+			tmp := make([]T, len(vals))
+			copy(tmp, vals)
+
+			if !yield(oneVal, tmp) {
+				return
+			}
+		}
+	}
+}
+
+func permutations[T any](sofar, vals []T, length int, yield func([]T) bool) {
 	for val, rest := range oneAtATime(vals) {
 		currentordering := append(sofar, val)
 		if length > 0 && len(rest) > 0 {
-			orderings(currentordering, rest, length-1, yield)
+			permutations(currentordering, rest, length-1, yield)
 		} else {
 			if !yield(currentordering) {
 				return
@@ -34,17 +49,48 @@ func orderings[T any](sofar, vals []T, length int, yield func([]T) bool) {
 	}
 }
 
-// OrderingsOfLength will yield all combinations without replacement of
-// a specified length
-func OrderingsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
-	return func(yield func([]T) bool) {
-		orderings([]T{}, vals, length, yield)
+func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func([]T) bool) {
+	currentordering := make([]T, len(sofar)+1)
+	copy(currentordering, sofar)
+
+	for val, rest := range oneAtATimeWithReplacement(vals) {
+		currentordering[len(currentordering)-1] = val
+		if length > 1 {
+			permutationsWithReplacement(currentordering, rest, length-1, yield)
+		} else {
+			if !yield(currentordering) {
+				return
+			}
+		}
 	}
 }
 
-// Orderings will yield all possible orderings of the slice
-func Orderings[T any](vals []T) iter.Seq[[]T] {
+// PermutationsOfLength will yield all combinations without replacement of
+// a specified length
+func PermutationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		orderings([]T{}, vals, len(vals), yield)
+		permutations([]T{}, vals, length, yield)
+	}
+}
+
+// Permutations will yield all possible orderings of the slice
+func Permutations[T any](vals []T) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		permutations([]T{}, vals, len(vals), yield)
+	}
+}
+
+// PermutationsOfLengthWithReplacement will yield all combinations without replacement of
+// a specified length
+func PermutationsOfLengthWithReplacement[T any](vals []T, length int) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		permutationsWithReplacement([]T{}, vals, length, yield)
+	}
+}
+
+// PermutationsWithReplacement will yield all possible orderings of the slice
+func PermutationsWithReplacement[T any](vals []T) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		permutationsWithReplacement([]T{}, vals, len(vals), yield)
 	}
 }

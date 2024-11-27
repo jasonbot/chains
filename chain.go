@@ -66,10 +66,17 @@ func ChainJunctionFromIterator[T any, V comparable](inFunc func(func(T) bool)) *
 	}
 }
 
-// ChainJunction is used to go from a single-type Chain to a dual-type Chain2.
+// ChainJunction is used to go from a single-type chain to a dual-type chain.
 // This conversion is needed is doing a Map/Reduce that converts type.
 func ChainJunction[T any, V comparable](in *IterableSequence[T]) *IterableSequenceJunction[T, V] {
 	return &IterableSequenceJunction[T, V]{
+		iterable: in.iterable,
+	}
+}
+
+// ChainJunction2 is used to add a third type to the chain; e.g. to map to an unrelated type.
+func ChainJunction2[T any, V, K comparable](in *IterableSequence2[T, V]) *IterableSequenceJunction2[T, V, K] {
+	return &IterableSequenceJunction2[T, V, K]{
 		iterable: in.iterable,
 	}
 }
@@ -149,8 +156,16 @@ func (iter *IterableSequence[T]) Count() int {
 	return Count(iter.iterable)
 }
 
-func (iter *IterableSequence[T]) Zip(i *IterableSequence[T]) iter.Seq2[T, T] {
-	return Zip(iter.iterable, i.iterable)
+func (iter *IterableSequence[T]) Zip(i *IterableSequence[T]) *IterableSequence2[T, T] {
+	return &IterableSequence2[T, T]{
+		iterable: Zip(iter.iterable, i.iterable),
+	}
+}
+
+func (iter *IterableSequence[T]) ZipLongest(zeroValue T, i *IterableSequence[T]) *IterableSequence2[T, T] {
+	return &IterableSequence2[T, T]{
+		iterable: ZipLongest(zeroValue, zeroValue, iter.iterable, i.iterable),
+	}
 }
 
 func (iter *IterableSequence[T]) A() []T {

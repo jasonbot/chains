@@ -96,3 +96,72 @@ func Tap[T any](visitor func(T), input iter.Seq[T]) func(func(T) bool) {
 		}
 	}
 }
+
+// Zip takes two sequences and combines them into one (up to length of shortest) via zipfunc
+func Zip[T, V, K any](zipFunc func(T, V) K, input1 iter.Seq[T], input2 iter.Seq[V]) func(func(K) bool) {
+	return func(yield func(K) bool) {
+		nextOne, oneDone := iter.Pull(input1)
+		defer oneDone()
+
+		nextTwo, twoDone := iter.Pull(input2)
+		defer twoDone()
+
+		var one T
+		var two V
+		var ok bool
+
+		for {
+			if one, ok = nextOne(); !ok {
+				return
+			}
+			if two, ok = nextTwo(); !ok {
+				return
+			}
+
+			yield(zipFunc(one, two))
+		}
+	}
+}
+
+// ZipLongest takes two sequences and combines them into one (up to length of longest) via zipfunc
+func ZipLongest[T, V, K any](zipFunc func(T, V) K, fillerOne T, fillerTwo V, input1 iter.Seq[T], input2 iter.Seq[V]) func(func(K) bool) {
+	return func(yield func(K) bool) {
+		nextOne, oneDone := iter.Pull(input1)
+		defer oneDone()
+
+		nextTwo, twoDone := iter.Pull(input2)
+		defer twoDone()
+
+		var one T
+		var two V
+		var ok, oneDoneProcessing, twoDoneProcessing bool
+
+		for !(oneDoneProcessing && twoDoneProcessing) {
+			if !oneDoneProcessing {
+				if one, ok = nextOne(); !ok {
+					oneDoneProcessing = true
+					one = fillerOne
+				}
+			}
+			if !twoDoneProcessing {
+				if two, ok = nextTwo(); !ok {
+					twoDoneProcessing = true
+					two = fillerTwo
+				}
+			}
+
+			yield(zipFunc(one, two))
+		}
+	}
+}
+
+// Flatten takes any number of iterables and combines them into one
+func Flatten[T any](sequences ...iter.Seq[T]) func(func(T) bool) {
+	return func(yield func(T) bool) {
+		for _, seq := range sequences {
+			for item := range seq {
+				yield(item)
+			}
+		}
+	}
+}

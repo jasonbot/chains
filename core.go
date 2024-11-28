@@ -219,3 +219,75 @@ func FlattenArgs[T any](sequences ...iter.Seq[T]) iter.Seq[T] {
 		}
 	}
 }
+
+// Tee splits one iterator into two
+func Tee[T any](in iter.Seq[T]) (iter.Seq[T], iter.Seq[T]) {
+	var done1, done2 bool
+	var exhausted bool
+
+	iter1Queue := []T{}
+	iter2Queue := []T{}
+
+	next, done := iter.Pull(in)
+	defer done()
+
+	iter1 := func(yield func(T) bool) {
+		for {
+			if len(iter1Queue) == 0 {
+				if exhausted {
+					return
+				}
+
+				nextval, ok := next()
+				if !ok {
+					exhausted = true
+					return
+				}
+
+				iter1Queue = append(iter1Queue, nextval)
+				if !done2 {
+					iter2Queue = append(iter1Queue, nextval)
+				}
+			} else {
+				nextval := iter1Queue[0]
+				iter1Queue = iter1Queue[1:]
+
+				if !yield(nextval) {
+					done1 = true
+					return
+				}
+			}
+		}
+	}
+
+	iter2 := func(yield func(T) bool) {
+		for {
+			if len(iter2Queue) == 0 {
+				if exhausted {
+					return
+				}
+
+				nextval, ok := next()
+				if !ok {
+					exhausted = true
+					return
+				}
+
+				if !done1 {
+					iter1Queue = append(iter1Queue, nextval)
+				}
+				iter2Queue = append(iter1Queue, nextval)
+			} else {
+				nextval := iter2Queue[0]
+				iter1Queue = iter2Queue[1:]
+
+				if !yield(nextval) {
+					done2 = true
+					return
+				}
+			}
+		}
+	}
+
+	return iter1, iter2
+}

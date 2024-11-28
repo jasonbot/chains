@@ -35,7 +35,7 @@ func Uniq[T comparable](offset int, input iter.Seq[T]) iter.Seq[T] {
 }
 
 // Cycle yields every item in the sequence indefinitely, starting from the
-// beginning once exhausted. Iamgine an unbound Repeat.
+// beginning once exhausted. Imagine Repeat, but infinity times.
 func Cycle[T any](input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		items := make([]T, 0, 100)
@@ -103,7 +103,7 @@ func Lengthen[T any](input iter.Seq[T], repeats int) iter.Seq[T] {
 }
 
 // Rotate will yield every element of the provided sequence, rotating the first
-// element to the end; { 1 2 3 } -> { 2 3 1 }
+// element to the end; { 1 2 3 4 5 } -> { 2 3 4 5 1 }
 func Rotate[T any](repeats int, input iter.Seq[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		first := true

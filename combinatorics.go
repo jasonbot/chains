@@ -172,7 +172,7 @@ func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 }
 
 // Combinations will yield all combinations without replacement of
-// the wntire slice
+// the entire slice
 func Combinations[T any](vals []T) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		endArray := make([]T, len(vals))

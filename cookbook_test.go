@@ -1,6 +1,7 @@
 package chains
 
 import (
+	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -135,5 +136,36 @@ func TestAllStreetFighterMatches(t *testing.T) {
 
 	if !slices.Equal(allFights, allExpectedFights) {
 		t.Fatalf("%v != %v", allFights, allExpectedFights)
+	}
+}
+
+func TestTeeAndMap(t *testing.T) {
+	numbersToCompute := []int{1, 2, 3, 4, 10, 20, 50, 100}
+	expectedValues := []string{
+		"2 + 10 = 12",
+		"4 + 20 = 24",
+		"6 + 30 = 36",
+		"8 + 40 = 48",
+		"20 + 100 = 120",
+		"40 + 200 = 240",
+		"100 + 500 = 600",
+		"200 + 1000 = 1200",
+	}
+	iter1, iter2 := Tee(Each(numbersToCompute))
+
+	doubler := ChainFromIterator(iter1).Map(func(i int) int { return i * 2 })
+	tenner := ChainFromIterator(iter2).Map(func(i int) int { return i * 10 })
+	calculatedValues := ChainJunction2[int, int, string](Chain2FromIterator(
+		Zip(
+			doubler.Each(),
+			tenner.Each(),
+		),
+	)).Map(
+		func(a int, b int) string {
+			return fmt.Sprintf("%v + %v = %v", a, b, a+b)
+		},
+	).Slice()
+	if !slices.Equal(calculatedValues, expectedValues) {
+		t.Fatalf("%v != %v", calculatedValues, expectedValues)
 	}
 }

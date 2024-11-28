@@ -84,15 +84,9 @@ func TestAllStreetFighterMatches(t *testing.T) {
 		"Ryu vs. Chun Li",
 		"Ryu vs. Guile",
 		"Ryu vs. E. Honda",
-		"Chun Li vs. Ryu",
 		"Chun Li vs. Guile",
 		"Chun Li vs. E. Honda",
-		"Guile vs. Ryu",
-		"Guile vs. Chun Li",
 		"Guile vs. E. Honda",
-		"E. Honda vs. Ryu",
-		"E. Honda vs. Chun Li",
-		"E. Honda vs. Guile",
 		"Ryu vs. Sagat",
 		"Chun Li vs. Sagat",
 		"Guile vs. Sagat",
@@ -109,7 +103,7 @@ func TestAllStreetFighterMatches(t *testing.T) {
 
 	// Each combination of players without replacement
 	singlePlayerFights := ChainJunctionFromIterator[[]string, string](
-		PermutationsOfLength(regularFighters, 2),
+		CombinationsOfLength(regularFighters, 2),
 	).Map(
 		func(names []string) string {
 			return strings.Join(names, " vs. ")

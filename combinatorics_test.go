@@ -44,7 +44,7 @@ func TestAllCombinations(t *testing.T) {
 	}
 
 	for ordering, expected := range ZipLongest(
-		AllCombinations(intSeq),
+		AllPermutations(intSeq),
 		Each(expectedValues),
 		nil,
 		nil,

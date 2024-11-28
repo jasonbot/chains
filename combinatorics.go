@@ -87,9 +87,9 @@ func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func(
 	return false
 }
 
-// AllCombinations will yield all combinations without replacement of
-// every subset of items in the sequence
-func AllCombinations[T any](vals []T) iter.Seq[[]T] {
+// AllPermutations will yield all permutations without replacement of
+// every subset of items in the sequence of all length
+func AllPermutations[T any](vals []T) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		permutations([]T{}, vals, len(vals), yield, true, false)
 	}
@@ -119,4 +119,63 @@ func PermutationsOfLengthWithReplacement[T any](vals []T, length int) iter.Seq[[
 // PermutationsWithReplacement will yield all possible orderings of the slice
 func PermutationsWithReplacement[T any](vals []T) iter.Seq[[]T] {
 	return PermutationsOfLengthWithReplacement(vals, len(vals))
+}
+
+func oneAtATimeTail[T any](vals []T) iter.Seq2[T, []T] {
+	return func(yield func(T, []T) bool) {
+		for index := range len(vals) {
+			oneVal := vals[index]
+
+			// Need to copy slice so we don't overwrite it
+			tmp := make([]T, len(vals))
+			copy(tmp, vals)
+
+			tailVal := vals[index+1:]
+			if !yield(oneVal, tailVal) {
+				return
+			}
+		}
+	}
+}
+
+func combinations[T any](placementArray []T, vals []T, index int, length int, yield func([]T) bool) bool {
+	if index >= length {
+		return false
+	}
+
+	for item, rest := range oneAtATimeTail(vals) {
+		placementArray[index] = item
+
+		if index == length-1 {
+			if !yield(placementArray) {
+				return true
+			}
+		}
+
+		if len(rest) > 0 && index < length {
+			if combinations(placementArray, rest, index+1, length, yield) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// CombinationsOfLength will yield all combinations without replacement of
+// a specified length
+func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		endArray := make([]T, length)
+		combinations(endArray, vals, 0, length, yield)
+	}
+}
+
+// Combinations will yield all combinations without replacement of
+// the wntire slice
+func Combinations[T any](vals []T) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		endArray := make([]T, len(vals))
+		combinations(endArray, vals, 0, len(vals), yield)
+	}
 }

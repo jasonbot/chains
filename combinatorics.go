@@ -5,6 +5,7 @@ import (
 )
 
 func oneAtATime[T any](vals []T) iter.Seq2[T, []T] {
+	// { 1 2 3} -> {[1, {2, 3}], [2, {1, 3}], [3, {1, 3}], ...}
 	return func(yield func(T, []T) bool) {
 		for index := range len(vals) {
 			oneVal := vals[index]
@@ -21,69 +22,57 @@ func oneAtATime[T any](vals []T) iter.Seq2[T, []T] {
 	}
 }
 
-func permutations[T any](sofar, vals []T, length int, yield func([]T) bool, includeall bool, exhausted bool) bool {
-	for val, rest := range oneAtATime(vals) {
-		if exhausted {
-			return exhausted
-		}
-
-		currentordering := append(sofar, val)
-		if length > 1 && len(rest) > 0 {
-			if !exhausted && includeall && !yield(currentordering) {
-				return true
-			}
-
-			exhausted = exhausted || permutations(currentordering, rest, length-1, yield, includeall, exhausted)
-		} else {
-			if exhausted || !yield(currentordering) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func oneAtATimeWithReplacement[T any](vals []T) iter.Seq2[T, []T] {
+	// { 1 2 3} -> {[1, {1, 2, 3}], [2, {1, 2, 3}], [3, {1, 2, 3}], ...}
 	return func(yield func(T, []T) bool) {
 		for index := range len(vals) {
 			oneVal := vals[index]
 
-			tmp := make([]T, len(vals))
-			copy(tmp, vals)
-
-			if !yield(oneVal, tmp) {
+			if !yield(oneVal, vals) {
 				return
 			}
 		}
 	}
 }
 
-func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func([]T) bool, includeall bool, exhausted bool) bool {
-	currentordering := make([]T, len(sofar)+1)
-	copy(currentordering, sofar)
+func oneAtATimeTail[T any](vals []T) iter.Seq2[T, []T] {
+	// { 1 2 3} -> {[1, {2, 3}], [2, {3}], ...}
+	return func(yield func(T, []T) bool) {
+		for index := range len(vals) {
+			oneVal := vals[index]
 
-	if length == 0 {
-		return exhausted
-	}
-
-	for val, rest := range oneAtATimeWithReplacement(vals) {
-		if exhausted {
-			return exhausted
-		}
-
-		currentordering[len(currentordering)-1] = val
-		if length > 1 {
-			if !exhausted && includeall && !yield(currentordering) {
-				return true
-			}
-
-			exhausted = exhausted || permutationsWithReplacement(currentordering, rest, length-1, yield, includeall, exhausted)
-		} else {
-			if exhausted || !yield(currentordering) {
-				return true
+			tailVal := vals[index+1:]
+			if !yield(oneVal, tailVal) {
+				return
 			}
 		}
 	}
+}
+
+func combinationsandpermutations[T any](placementArray []T, vals []T, index int, length int, returnall bool, visit func([]T) iter.Seq2[T, []T], yield func([]T) bool) bool {
+	if index >= length {
+		return false
+	}
+
+	for item, rest := range visit(vals) {
+		placementArray[index] = item
+
+		if (index == length-1) || returnall {
+			copyToReturn := make([]T, index+1)
+			copy(copyToReturn, placementArray[:index+1])
+
+			if !yield(copyToReturn) {
+				return true
+			}
+		}
+
+		if len(rest) > 0 && index < length {
+			if combinationsandpermutations(placementArray, rest, index+1, length, returnall, visit, yield) {
+				return true
+			}
+		}
+	}
+
 	return false
 }
 
@@ -91,7 +80,8 @@ func permutationsWithReplacement[T any](sofar, vals []T, length int, yield func(
 // every subset of items in the sequence of all length
 func AllPermutations[T any](vals []T) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		permutations([]T{}, vals, len(vals), yield, true, false)
+		placement := make([]T, len(vals))
+		combinationsandpermutations(placement, vals, 0, len(vals), true, oneAtATime, yield)
 	}
 }
 
@@ -99,7 +89,8 @@ func AllPermutations[T any](vals []T) iter.Seq[[]T] {
 // a specified length
 func PermutationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		permutations([]T{}, vals, length, yield, false, false)
+		placement := make([]T, len(vals))
+		combinationsandpermutations(placement, vals, 0, length, false, oneAtATime, yield)
 	}
 }
 
@@ -112,7 +103,8 @@ func Permutations[T any](vals []T) iter.Seq[[]T] {
 // a specified length
 func PermutationsOfLengthWithReplacement[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		permutationsWithReplacement([]T{}, vals, length, yield, false, false)
+		placement := make([]T, len(vals))
+		combinationsandpermutations(placement, vals, 0, length, false, oneAtATimeWithReplacement, yield)
 	}
 }
 
@@ -121,61 +113,17 @@ func PermutationsWithReplacement[T any](vals []T) iter.Seq[[]T] {
 	return PermutationsOfLengthWithReplacement(vals, len(vals))
 }
 
-func oneAtATimeTail[T any](vals []T) iter.Seq2[T, []T] {
-	return func(yield func(T, []T) bool) {
-		for index := range len(vals) {
-			oneVal := vals[index]
-
-			// Need to copy slice so we don't overwrite it
-			tmp := make([]T, len(vals))
-			copy(tmp, vals)
-
-			tailVal := vals[index+1:]
-			if !yield(oneVal, tailVal) {
-				return
-			}
-		}
-	}
-}
-
-func combinations[T any](placementArray []T, vals []T, index int, length int, yield func([]T) bool) bool {
-	if index >= length {
-		return false
-	}
-
-	for item, rest := range oneAtATimeTail(vals) {
-		placementArray[index] = item
-
-		if index == length-1 {
-			if !yield(placementArray) {
-				return true
-			}
-		}
-
-		if len(rest) > 0 && index < length {
-			if combinations(placementArray, rest, index+1, length, yield) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 // CombinationsOfLength will yield all combinations without replacement of
 // a specified length
 func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		endArray := make([]T, length)
-		combinations(endArray, vals, 0, length, yield)
+		placement := make([]T, len(vals))
+		combinationsandpermutations(placement, vals, 0, length, false, oneAtATimeTail, yield)
 	}
 }
 
 // Combinations will yield all combinations without replacement of
 // the entire slice
 func Combinations[T any](vals []T) iter.Seq[[]T] {
-	return func(yield func([]T) bool) {
-		endArray := make([]T, len(vals))
-		combinations(endArray, vals, 0, len(vals), yield)
-	}
+	return CombinationsOfLength(vals, len(vals))
 }

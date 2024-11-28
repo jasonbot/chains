@@ -248,14 +248,14 @@ func Tee[T any](in iter.Seq[T]) (iter.Seq[T], iter.Seq[T]) {
 				if !done2 {
 					iter2Queue = append(iter1Queue, nextval)
 				}
-			} else {
-				nextval := iter1Queue[0]
-				iter1Queue = iter1Queue[1:]
+			}
 
-				if !yield(nextval) {
-					done1 = true
-					return
-				}
+			nextval := iter1Queue[0]
+			iter1Queue = iter1Queue[1:]
+
+			if !yield(nextval) {
+				done1 = true
+				return
 			}
 		}
 	}
@@ -277,14 +277,14 @@ func Tee[T any](in iter.Seq[T]) (iter.Seq[T], iter.Seq[T]) {
 					iter1Queue = append(iter1Queue, nextval)
 				}
 				iter2Queue = append(iter1Queue, nextval)
-			} else {
-				nextval := iter2Queue[0]
-				iter1Queue = iter2Queue[1:]
+			}
 
-				if !yield(nextval) {
-					done2 = true
-					return
-				}
+			nextval := iter2Queue[0]
+			iter1Queue = iter2Queue[1:]
+
+			if !yield(nextval) {
+				done2 = true
+				return
 			}
 		}
 	}

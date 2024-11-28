@@ -20,6 +20,46 @@ func TestFilter(t *testing.T) {
 	}
 }
 
+func TestSumAndProductWithReduce(t *testing.T) {
+	sumarray := []int{1, 2, 3, 4}
+	expectedSum := 10
+	expectedProduct := 24
+
+	summation := Reduce(
+		Each(sumarray),
+		func(a, b int) int {
+			return a + b
+		},
+	)
+
+	product := Reduce(
+		Each(sumarray),
+		func(a, b int) int {
+			return a * b
+		},
+	)
+
+	product0 := ReduceWithZero(
+		Each(sumarray),
+		func(a, b int) int {
+			return a * b
+		},
+		100,
+	)
+
+	if summation != expectedSum {
+		t.Fatalf("%v did not sum to %v", summation, expectedSum)
+	}
+
+	if product != expectedProduct {
+		t.Fatalf("%v did not multiply to %v", product, expectedProduct)
+	}
+
+	if product0 != expectedProduct*100 {
+		t.Fatalf("%v did not multiply to %v", product, expectedProduct*100)
+	}
+}
+
 func TestCounterWithReduce(t *testing.T) {
 	toCount := []string{"a", "b", "c", "a", "c", "a", "b", "d", "f"}
 	expectedVal := map[string]int{

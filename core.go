@@ -75,6 +75,21 @@ func Filter[T any](input iter.Seq[T], predicateFunc func(T) bool) iter.Seq[T] {
 	}
 }
 
+// Compact yields anything that is not the zero value.
+func Compact[T comparable](input iter.Seq[T]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		var zeroValue T
+
+		for v := range input {
+			if v != zeroValue {
+				if !yield(v) {
+					return
+				}
+			}
+		}
+	}
+}
+
 // All takes an iterator and returns true if the sequence is empty or all
 // items match the predicate
 func All[T any](input iter.Seq[T], predicateFunc func(T) bool) bool {

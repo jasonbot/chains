@@ -128,7 +128,7 @@ func Combinations[T any](vals []T) iter.Seq[[]T] {
 	return CombinationsOfLength(vals, len(vals))
 }
 
-// Pairwise will yield all possible combinations of the two slices
+// Pairwise will yield all possible combinations of the two iterators
 func Pairwise[T, V any](s1 iter.Seq[T], s2 iter.Seq[V]) iter.Seq2[T, V] {
 	i1, i2 := Tee(s1)
 

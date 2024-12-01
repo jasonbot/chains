@@ -323,3 +323,84 @@ func Tee[T any](in iter.Seq[T]) (iter.Seq[T], iter.Seq[T]) {
 
 	return iter1, iter2
 }
+
+// Partition splits one iterator into two based on the predicate function
+func Partition[T any](in iter.Seq[T], predicateFunction func(T) bool) (iter.Seq[T], iter.Seq[T]) {
+	var done1, done2 bool
+	var exhausted bool
+
+	iter1Queue := []T{}
+	iter2Queue := []T{}
+
+	next, done := iter.Pull(in)
+
+	iter1 := func(yield func(T) bool) {
+		defer done()
+
+		for {
+			for len(iter1Queue) == 0 {
+				if exhausted {
+					return
+				}
+
+				nextval, ok := next()
+				if !ok {
+					exhausted = true
+					return
+				}
+
+				fitsHere := predicateFunction(nextval)
+
+				if fitsHere {
+					iter1Queue = append(iter1Queue, nextval)
+				} else if !done2 {
+					iter2Queue = append(iter2Queue, nextval)
+				}
+			}
+
+			nextval := iter1Queue[0]
+			iter1Queue = iter1Queue[1:]
+
+			if !yield(nextval) {
+				done1 = true
+				return
+			}
+		}
+	}
+
+	iter2 := func(yield func(T) bool) {
+		defer done()
+
+		for {
+			for len(iter2Queue) == 0 {
+				if exhausted {
+					return
+				}
+
+				nextval, ok := next()
+				if !ok {
+					exhausted = true
+					return
+				}
+
+				fitsHere := !predicateFunction(nextval)
+
+				if fitsHere {
+					iter2Queue = append(iter2Queue, nextval)
+				} else if !done1 {
+					iter1Queue = append(iter1Queue, nextval)
+				}
+			}
+
+			nextval := iter2Queue[0]
+			iter2Queue = iter2Queue[1:]
+
+			if !yield(nextval) {
+				done2 = true
+				return
+			}
+		}
+	}
+
+	return iter1, iter2
+}

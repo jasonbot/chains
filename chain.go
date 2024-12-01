@@ -128,6 +128,16 @@ func (iter *IterableSequence[T]) Filter(filterFunc func(T) bool) *IterableSequen
 	return iter
 }
 
+func (iter *IterableSequence[T]) Partition(predicateFunc func(T) bool) (*IterableSequence[T], *IterableSequence[T]) {
+	i1, i2 := Partition(iter.iterable, predicateFunc)
+	iter.iterable = i1
+
+	iter2 := &IterableSequence[T]{
+		iterable: i2,
+	}
+	return iter, iter2
+}
+
 func (iter *IterableSequence[T]) All(predicateFunc func(T) bool) bool {
 	return All(iter.iterable, predicateFunc)
 }

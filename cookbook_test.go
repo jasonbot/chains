@@ -209,3 +209,21 @@ func TestTeeAndMap(t *testing.T) {
 		t.Fatalf("%v != %v", calculatedValues, expectedValues)
 	}
 }
+
+func TestEvensAndOdds(t *testing.T) {
+	numbersToPartititon := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	expectedEvenValues := []int{2, 4, 6, 8, 10}
+	expectedOddValues := []int{1, 3, 5, 7, 9}
+
+	i1, i2 := ChainFromSlice(numbersToPartititon).Partition(func(i int) bool { return i%2 == 0 })
+	i1s := i1.Slice()
+	i2s := i2.Slice()
+
+	if !slices.Equal(i1s, expectedEvenValues) {
+		t.Fatalf("%v != %v", i1s, expectedEvenValues)
+	}
+
+	if !slices.Equal(i2s, expectedOddValues) {
+		t.Fatalf("%v != %v", i2s, expectedOddValues)
+	}
+}

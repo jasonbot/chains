@@ -2,6 +2,17 @@ package chains
 
 import "iter"
 
+// ToSlice makes a slice
+func ToSlice[T any](input iter.Seq[T]) []T {
+	endSlice := make([]T, 0, 100)
+
+	for value := range input {
+		endSlice = append(endSlice, value)
+	}
+
+	return endSlice
+}
+
 // Count returns the length of the exhusted iterator.
 func Count[T any](input iter.Seq[T]) int {
 	var count int

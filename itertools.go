@@ -218,6 +218,30 @@ func FirstAndRest[T any](input iter.Seq[T]) (T, iter.Seq[T]) {
 	}
 }
 
+// First returns the first value found
+func First[T any](input iter.Seq[T]) T {
+	next, stop := iter.Pull(input)
+	defer stop()
+
+	first, ok := next()
+	if !ok {
+		var zeroValue T
+		return zeroValue
+	}
+
+	return first
+}
+
+// First returns the first value found
+func Last[T any](input iter.Seq[T]) T {
+	var returnvalue T
+	for value := range input {
+		returnvalue = value
+	}
+
+	return returnvalue
+}
+
 // GroupBy returns an iterator of iterators, with each first-level iteration
 // yielding a key and an iterator of values that map to that key value in
 // sequence. Like Uniq, if the same key appears disjointedly it will show up

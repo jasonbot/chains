@@ -35,18 +35,32 @@ func Map[T, V any](input iter.Seq[T], mapFunc func(T) V) iter.Seq[V] {
 	}
 }
 
+// Accumulate takes an initial value, a reduce function, and an iterable
+// and returns each result of applying the function iteratively.
+func Accumulate[T, V any](input iter.Seq[T], collectFunc func(V, T) V, zeroValue V) iter.Seq[V] {
+	return func(yield func(V) bool) {
+		if !yield(zeroValue) {
+			return
+		}
+
+		if collectFunc == nil || input == nil {
+			return
+		}
+
+		for v := range input {
+			zeroValue = collectFunc(zeroValue, v)
+
+			if !yield(zeroValue) {
+				return
+			}
+		}
+	}
+}
+
 // ReduceWithZero takes an initial value, a reduce function, and an iterable
 // and returns the final result of applying the function iteratively.
 func ReduceWithZero[T, V any](input iter.Seq[T], collectFunc func(V, T) V, zeroValue V) V {
-	if collectFunc == nil || input == nil {
-		var zeroValue V
-		return zeroValue
-	}
-
-	for v := range input {
-		zeroValue = collectFunc(zeroValue, v)
-	}
-	return zeroValue
+	return Last(Accumulate(input, collectFunc, zeroValue))
 }
 
 // Reduce takes a reduce function, and an iterable and returns the final result

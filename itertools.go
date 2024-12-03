@@ -243,7 +243,7 @@ func First[T any](input iter.Seq[T]) T {
 	return first
 }
 
-// First returns the first value found
+// Last returns the last value found
 func Last[T any](input iter.Seq[T]) T {
 	var returnvalue T
 	for value := range input {

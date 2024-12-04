@@ -212,7 +212,7 @@ func SlidingWindows[T any](input iter.Seq[T], length int) iter.Seq[[]T] {
 
 // Zip takes two sequences and combines them into one (up to length of
 // shortest)
-// { 1 2 3 }, { "a" "b" "c" "d" } -> { (1, "a") (2, "b") (3, "c") }
+// { 1 2 3 }, { "a" "b" "c" "d" } -> { ( 1, "a" ) ( 2, "b" ) ( 3, "c" ) }
 func Zip[T, V any](input1 iter.Seq[T], input2 iter.Seq[V]) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		nextOne, oneDone := iter.Pull(input1)
@@ -243,7 +243,7 @@ func Zip[T, V any](input1 iter.Seq[T], input2 iter.Seq[V]) iter.Seq2[T, V] {
 // ZipLongest takes two sequences and combines them into one (up to length
 // of longest) via zipfunc, using fillerOne/fillerTwo as defaults if one is
 // exhausted.
-// { 1 2 3 }, { "a" "b" "c" "d" }, 0, "e"  -> { (1, "a") (2, "b") (3, "c") (0, "d") }
+// { 1 2 3 }, { "a" "b" "c" "d" }, -1, "e"  -> { ( 1, "a" ) ( 2, "b" ) ( 3, "c" ) ( -1, "d" ) }
 func ZipLongest[T, V any](input1 iter.Seq[T], input2 iter.Seq[V], fillerOne T, fillerTwo V) iter.Seq2[T, V] {
 	return func(yield func(T, V) bool) {
 		nextOne, oneDone := iter.Pull(input1)
@@ -278,7 +278,7 @@ func ZipLongest[T, V any](input1 iter.Seq[T], input2 iter.Seq[V], fillerOne T, f
 }
 
 // Flatten takes any number of iterables and combines them into one
-// {{ 1 2 3 } { 4 5 6 }} -> { 1 2 3 4 5 6 }
+// { { 1 2 3 } { 4 5 6 } } -> { 1 2 3 4 5 6 }
 func Flatten[T any](sequences iter.Seq[iter.Seq[T]]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for seq := range sequences {
@@ -382,7 +382,7 @@ func Tee[T any](in iter.Seq[T]) (iter.Seq[T], iter.Seq[T]) {
 }
 
 // Partition splits one iterator into two based on the predicate function
-// { 1 2 3 4 5 6 7 8 9 10 }, func(x % 2 == 0) -> iter{ 2 4 6 8 10 }, iter{ 1 3 5 7 9 }
+// { 1 2 3 4 5 6 7 8 9 10 }, func(x) { x % 2 == 0 } -> iter{ 2 4 6 8 10 }, iter{ 1 3 5 7 9 }
 func Partition[T any](in iter.Seq[T], predicateFunction func(T) bool) (iter.Seq[T], iter.Seq[T]) {
 	var done1, done2 bool
 	var exhausted bool

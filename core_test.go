@@ -1,6 +1,7 @@
 package chains
 
 import (
+	"slices"
 	"testing"
 )
 
@@ -40,6 +41,28 @@ func TestGroupBy(t *testing.T) {
 			t.Fatalf("Values not equal: %v != %v", computedVals, vals[index])
 		}
 
+		index += 1
+	}
+}
+
+func TestWindows(t *testing.T) {
+	items := []int{1, 2, 3, 4}
+	expectedSlidingWindows := [][]int{{1, 2, 3}, {2, 3, 4}}
+	expectedWindows := [][]int{{1, 2, 3}, {4}}
+
+	index := 0
+	for window := range SlidingWindows(Each(items), 3) {
+		if !slices.Equal(window, expectedSlidingWindows[index]) {
+			t.Fatalf("%v != %v", window, expectedSlidingWindows[index])
+		}
+		index += 1
+	}
+
+	index = 0
+	for window := range Windows(Each(items), 3) {
+		if !slices.Equal(window, expectedWindows[index]) {
+			t.Fatalf("%v != %v", window, expectedWindows[index])
+		}
 		index += 1
 	}
 }

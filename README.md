@@ -22,7 +22,7 @@ returnArray := ChainFromSlice(
 
 ```
 
-This library is ment to fill a void in some of the niceness I get in Python and Ruby -- you'll note there is a whole subset of [Python's `itertoools` library](https://docs.python.org/3/library/itertools.html) here.
+This library is ment to fill a void in some of the niceness I get in Python and Ruby -- you'll note there is a whole subset of [Python's `itertools` library](https://docs.python.org/3/library/itertools.html) here.
 
 ## Examples
 

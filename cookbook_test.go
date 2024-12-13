@@ -233,6 +233,7 @@ func TestMergeyWergey(t *testing.T) {
 	item2 := []int{4, 5, 6, 7}
 	item3 := []int{1, 5, 8, 10}
 	item4 := []int{10, 100, 35, 1}
+	item5 := []int{}
 
 	expectedSlice := []int{1, 1, 2, 3, 4, 4, 5, 5, 6, 7, 8, 10}
 	orderedSlice := ToSlice(Merged(Each(item1), Each(item2), Each(item3)))
@@ -246,5 +247,12 @@ func TestMergeyWergey(t *testing.T) {
 
 	if !slices.Equal(orderedSlicewithUnorderings, expectedSecondSlice) {
 		t.Fatalf("Arrays %v != %v", orderedSlicewithUnorderings, expectedSecondSlice)
+	}
+
+	// Try one with an immediately-exhausted iterator
+	orderedSlicewithUnorderingsAndempty := ToSlice(Merged(Each(item1), Each(item2), Each(item3), Each(item4), Each(item5)))
+
+	if !slices.Equal(orderedSlicewithUnorderingsAndempty, expectedSecondSlice) {
+		t.Fatalf("Arrays %v != %v", orderedSlicewithUnorderingsAndempty, expectedSecondSlice)
 	}
 }

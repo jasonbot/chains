@@ -227,3 +227,24 @@ func TestEvensAndOdds(t *testing.T) {
 		t.Fatalf("%v != %v", i2s, expectedOddValues)
 	}
 }
+
+func TestMergeyWergey(t *testing.T) {
+	item1 := []int{1, 2, 3, 4}
+	item2 := []int{4, 5, 6, 7}
+	item3 := []int{1, 5, 8, 10}
+	item4 := []int{10, 100, 35, 1}
+
+	expectedSlice := []int{1, 1, 2, 3, 4, 4, 5, 5, 6, 7, 8, 10}
+	orderedSlice := ToSlice(Merged(Each(item1), Each(item2), Each(item3)))
+
+	if !slices.Equal(orderedSlice, expectedSlice) {
+		t.Fatalf("Arrays %v != %v", orderedSlice, expectedSlice)
+	}
+
+	expectedSecondSlice := []int{1, 1, 2, 3, 4, 4, 5, 5, 6, 7, 8, 10, 10, 100, 35, 1}
+	orderedSlicewithUnorderings := ToSlice(Merged(Each(item1), Each(item2), Each(item3), Each(item4)))
+
+	if !slices.Equal(orderedSlicewithUnorderings, expectedSecondSlice) {
+		t.Fatalf("Arrays %v != %v", orderedSlicewithUnorderings, expectedSecondSlice)
+	}
+}

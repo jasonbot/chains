@@ -28,7 +28,9 @@ func sortItems[T cmp.Ordered](itemList itemListForSorting[T]) {
 }
 
 // Merged takes an arbitrary number of iterators in ascending order and attempts to merge
-// them into a single sorted iterable
+// them into a single sorted iterable -- this has similar limitations to Uniq in that if
+// the sequences are not ordered, the iterable will not magically be sorted -- it will
+// be a best effort.
 func Merged[T cmp.Ordered](iterators ...iter.Seq[T]) iter.Seq[T] {
 	itemList := make(itemListForSorting[T], len(iterators))
 	index := 0

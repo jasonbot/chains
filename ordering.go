@@ -6,6 +6,58 @@ import (
 	"slices"
 )
 
+type cycleItem[T any] struct {
+	next func() (T, bool)
+	done func()
+}
+
+type itemListForCycling[T any] []cycleItem[T]
+
+// RoundRobin takes an arbitrary number of iterators and takes one from each
+// until they are all exhausted.
+func RoundRobin[T cmp.Ordered](iterators ...iter.Seq[T]) iter.Seq[T] {
+	itemList := make(itemListForCycling[T], len(iterators))
+	for index, iterable := range iterators {
+		next, stop := iter.Pull(iterable)
+		itemList[index] = cycleItem[T]{
+			next: next,
+			done: stop,
+		}
+	}
+
+	return func(yield func(T) bool) {
+		defer func() {
+			for _, i := range itemList {
+				if i.done != nil {
+					i.done()
+				}
+			}
+		}()
+
+		index := 0
+
+		missedItems := 0
+		for missedItems < len(itemList) {
+			if itemList[index].next != nil {
+				if nextVal, ok := itemList[index].next(); ok {
+					if !yield(nextVal) {
+						return
+					}
+				} else {
+					itemList[index].done = nil
+					itemList[index].next = nil
+				}
+				missedItems = 0
+			} else {
+				missedItems += 1
+			}
+
+			index += 1
+			index %= len(itemList)
+		}
+	}
+}
+
 type mergeSortedItem[T cmp.Ordered] struct {
 	value T
 	next  func() (T, bool)

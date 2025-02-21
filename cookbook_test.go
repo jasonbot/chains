@@ -242,6 +242,7 @@ func TestMergeyWergey(t *testing.T) {
 		t.Fatalf("Arrays %v != %v", orderedSlice, expectedSlice)
 	}
 
+	// This is sort of out-of-order: do a good faith effort
 	expectedSecondSlice := []int{1, 1, 2, 3, 4, 4, 5, 5, 6, 7, 8, 10, 10, 100, 35, 1}
 	orderedSlicewithUnorderings := ToSlice(Merged(Each(item1), Each(item2), Each(item3), Each(item4)))
 
@@ -254,5 +255,18 @@ func TestMergeyWergey(t *testing.T) {
 
 	if !slices.Equal(orderedSlicewithUnorderingsAndempty, expectedSecondSlice) {
 		t.Fatalf("Arrays %v != %v", orderedSlicewithUnorderingsAndempty, expectedSecondSlice)
+	}
+}
+
+func TestRoundRobin(t *testing.T) {
+	item1 := []int{1, 2, 3, 4}
+	item2 := []int{4, 5, 6, 7}
+	item3 := []int{1, 5, 8, 10, 11, 12}
+
+	expectedSlice := []int{1, 4, 1, 2, 5, 5, 3, 6, 8, 4, 7, 10, 11, 12}
+	roundRobinSlice := ToSlice(RoundRobin(Each(item1), Each(item2), Each(item3)))
+
+	if !slices.Equal(roundRobinSlice, expectedSlice) {
+		t.Fatalf("Arrays %v != %v", roundRobinSlice, expectedSlice)
 	}
 }

@@ -50,7 +50,7 @@ func (iter *IterableSequence2[T, V]) Each() func(func(T, V) bool) {
 func (iter *IterableSequence2[T, V]) FirstVal() *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: func(yield func(T) bool) {
-			for t, _ := range iter.iterable {
+			for t := range iter.iterable {
 				if !yield(t) {
 					return
 				}

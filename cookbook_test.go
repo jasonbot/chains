@@ -260,10 +260,10 @@ func TestMergeyWergey(t *testing.T) {
 
 func TestRoundRobin(t *testing.T) {
 	item1 := []int{1, 2, 3, 4}
-	item2 := []int{4, 5, 6, 7}
-	item3 := []int{1, 5, 8, 10, 11, 12}
+	item2 := []int{5, 6, 7, 8}
+	item3 := []int{9, 10, 11, 12}
 
-	expectedSlice := []int{1, 4, 1, 2, 5, 5, 3, 6, 8, 4, 7, 10, 11, 12}
+	expectedSlice := []int{1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12}
 	roundRobinSlice := ToSlice(RoundRobin(Each(item1), Each(item2), Each(item3)))
 
 	if !slices.Equal(roundRobinSlice, expectedSlice) {

@@ -163,10 +163,10 @@ func PermutationsWithReplacement[T any](vals []T) iter.Seq[[]T] {
 	return PermutationsOfLengthWithReplacement(vals, len(vals))
 }
 
-// CombinationsOfLength will yield all combinations with replacement of
+// CombinationsToLength will yield all combinations with replacement of
 // a specified length
 // { 1 2 3 }, 2 ->  { 1 } { 1 2 } { 1 3 } { 2 } { 2 1 } { 2 3 } { 3 } { 3 1 } { 3 2 }
-func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
+func CombinationsToLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		placement := make([]T, len(vals))
 		combinationsAndPermutations(placement, vals, 0, length, false, oneAtATimeTail, yield)
@@ -177,7 +177,7 @@ func CombinationsOfLength[T any](vals []T, length int) iter.Seq[[]T] {
 // the entire slice
 // { 1 2 3 } ->  { 1 } { 1 2 } { 1 2 3 } { 1 3 } { 1 3 2 } { 2 } { 2 1 } { 2 1 3 } { 2 3 } { 2 3 1 } { 3 } { 3 1 } { 3 1 2 } { 3 2 } { 3 2 1 }
 func Combinations[T any](vals []T) iter.Seq[[]T] {
-	return CombinationsOfLength(vals, len(vals))
+	return CombinationsToLength(vals, len(vals))
 }
 
 // Pairwise will yield all possible combinations of the two iterators

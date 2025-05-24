@@ -143,7 +143,7 @@ func TestAllStreetFighterMatches(t *testing.T) {
 	}
 
 	// Each combination of players without replacement
-	matchups := CombinationsOfLength(regularFighters, 2)
+	matchups := CombinationsToLength(regularFighters, 2)
 	singlePlayerFights := Map(matchups, func(names []string) string {
 		return strings.Join(names, " vs. ")
 	})

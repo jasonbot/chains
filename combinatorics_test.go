@@ -23,7 +23,7 @@ func TestPermutations(t *testing.T) {
 	}
 }
 
-func TestOrderedPermutations(t *testing.T) {
+func TestAllOrderedPermutations(t *testing.T) {
 	intSeq := []int{1, 2, 3, 4, 5, 6}
 	expectedValues := [][]int{
 		{1},
@@ -91,7 +91,25 @@ func TestOrderedPermutations(t *testing.T) {
 		{1, 2, 3, 4, 5, 6},
 	}
 
-	for ordering, expected := range ZipLongest(OrderedPermutations(intSeq), Each(expectedValues), nil, nil) {
+	for ordering, expected := range ZipLongest(AllOrderedPermutations(intSeq), Each(expectedValues), nil, nil) {
+		if !slices.Equal(ordering, expected) {
+			t.Fatalf("Arrays %v != %v", ordering, expected)
+		}
+	}
+}
+
+func TestOrderedPermutations(t *testing.T) {
+	intSeq := []int{1, 2, 3}
+	expectedValues := [][]int{
+		{1},
+		{2},
+		{3},
+		{1, 2},
+		{1, 3},
+		{2, 3},
+	}
+
+	for ordering, expected := range ZipLongest(OrderedPermutations(intSeq, 2), Each(expectedValues), nil, nil) {
 		if !slices.Equal(ordering, expected) {
 			t.Fatalf("Arrays %v != %v", ordering, expected)
 		}

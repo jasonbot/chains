@@ -102,6 +102,18 @@ func Permutations[T any](vals []T) iter.Seq[[]T] {
 	return PermutationsOfLength(vals, len(vals))
 }
 
+// OrderedPermutations will yield all orderings without replacement of
+// a specified length
+// { 1 2 3 }, 2 -> { 1 2 } { 1 3 } { 2 3 }
+func OrderedPermutations[T any](vals []T) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		for i := range len(vals) {
+			placement := make([]T, len(vals))
+			combinationsAndPermutations(placement, vals, 0, i+1, false, oneAtATimeTail, yield)
+		}
+	}
+}
+
 // OrderedPermutationsOfLength will yield all orderings without replacement of
 // a specified length
 // { 1 2 3 }, 2 -> { 1 2 } { 1 3 } { 2 3 }

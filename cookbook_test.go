@@ -143,36 +143,30 @@ func TestAllStreetFighterMatches(t *testing.T) {
 	}
 
 	// Each combination of players without replacement
-	singlePlayerFights := ChainJunctionFromIterator[[]string, string](
-		CombinationsOfLength(regularFighters, 2),
-	).Map(
-		func(names []string) string {
-			return strings.Join(names, " vs. ")
-		},
-	)
+	matchups := CombinationsOfLength(regularFighters, 2)
+	singlePlayerFights := Map(matchups, func(names []string) string {
+		return strings.Join(names, " vs. ")
+	})
 
 	// Trick to get pairwise fights from two lists -- lengthen the one by
 	// the number of elements in the other, then cycle.
-	bossFights := Chain2FromIterator(
-		Zip(
-			Cycle(Each(regularFighters)),
-			Lengthen(
-				Each(bosses),
-				len(regularFighters),
-			),
+	bossMatchups := Zip(
+		Cycle(Each(regularFighters)),
+		Lengthen(
+			Each(bosses),
+			len(regularFighters),
 		),
-	).Map(
+	)
+
+	bossMatchupFights := Map2(bossMatchups,
 		func(p1, p2 string) string {
 			return strings.Join([]string{p1, p2}, " vs. ")
 		},
 	)
 
-	allFights := ChainFromIterator(
-		FlattenArgs(
-			singlePlayerFights.Each(),
-			bossFights.Each(),
-		),
-	).Slice()
+	// Combine all iterators into one
+	allFightsCombined := FlattenArgs(singlePlayerFights, bossMatchupFights)
+	allFights := ToSlice(allFightsCombined)
 
 	if !slices.Equal(allFights, allExpectedFights) {
 		t.Fatalf("%v != %v", allFights, allExpectedFights)

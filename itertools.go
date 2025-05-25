@@ -28,7 +28,7 @@ func Count[T any](input iter.Seq[T]) int {
 // If a duplicate shows up further in the sequence, it will show up again.
 // For example, {1 1 2 2 3 3 4} will yield {1 2 3 4} but
 // {1 1 2 2 1 1 4} will yield {1 2 1 4}
-func Uniq[T comparable](offset int, input iter.Seq[T]) iter.Seq[T] {
+func Uniq[T comparable](input iter.Seq[T]) iter.Seq[T] {
 	first := true
 	var lastValue T
 

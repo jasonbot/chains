@@ -109,7 +109,7 @@ func TestOrderedPermutations(t *testing.T) {
 		{2, 3},
 	}
 
-	for ordering, expected := range ZipLongest(OrderedPermutations(intSeq, 2), Each(expectedValues), nil, nil) {
+	for ordering, expected := range ZipLongest(OrderedPermutationsToLength(intSeq, 2), Each(expectedValues), nil, nil) {
 		if !slices.Equal(ordering, expected) {
 			t.Fatalf("Arrays %v != %v", ordering, expected)
 		}

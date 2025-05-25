@@ -125,10 +125,10 @@ func AllOrderedPermutations[T any](vals []T) iter.Seq[[]T] {
 	}
 }
 
-// OrderedPermutations will yield all orderings without replacement of
+// OrderedPermutationsToLength will yield all orderings without replacement of
 // a specified length
 // { 1 2 3 }, 2 -> { 1 2 } { 1 3 } { 2 3 }
-func OrderedPermutations[T any](vals []T, length int) iter.Seq[[]T] {
+func OrderedPermutationsToLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		for i := range length {
 			placement := make([]T, len(vals))
@@ -173,10 +173,10 @@ func CombinationsToLength[T any](vals []T, length int) iter.Seq[[]T] {
 	}
 }
 
-// Combinations will yield all combinations with replacement of
+// AllCombinations will yield all combinations with replacement of
 // the entire slice
 // { 1 2 3 } ->  { 1 } { 1 2 } { 1 2 3 } { 1 3 } { 1 3 2 } { 2 } { 2 1 } { 2 1 3 } { 2 3 } { 2 3 1 } { 3 } { 3 1 } { 3 1 2 } { 3 2 } { 3 2 1 }
-func Combinations[T any](vals []T) iter.Seq[[]T] {
+func AllCombinations[T any](vals []T) iter.Seq[[]T] {
 	return CombinationsToLength(vals, len(vals))
 }
 

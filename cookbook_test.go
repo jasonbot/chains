@@ -148,7 +148,7 @@ func TestAllStreetFighterMatches(t *testing.T) {
 		return strings.Join(names, " vs. ")
 	})
 
-	// Trick to get pairwise fights from two lists -- lengthen the one by
+	// Trick to get pairwise fights from two lists – lengthen the one by
 	// the number of elements in the other, then cycle.
 	bossMatchups := Zip(
 		Cycle(Each(regularFighters)),

@@ -1,5 +1,8 @@
 # Chained Iterators in Go
 
+> [!NOTE]
+> I wrote [a blog post on this library](https://www.jasonscheirer.com/weblog/chains/), which is a nice medium-form introduction to the lib and its motivators/usage.
+
 I haven't done much in Go lately, and I definitely haven't played with generics or iterators yet. Why not do both?
 
 So now you can do this:
@@ -23,9 +26,6 @@ returnArray := ChainFromSlice(
 ```
 
 This library is meant to fill a void in some of the niceness I get in Python and Ruby -- you'll note there is a whole subset of [Python's `itertools` library](https://docs.python.org/3/library/itertools.html) here.
-
-> [!NOTE]
-> I wrote [a blog post on this library](https://www.jasonscheirer.com/weblog/chains/), which is a nice medium-form introduction to the lib and its motivators/usage.
 
 ## Examples
 

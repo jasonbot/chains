@@ -43,7 +43,7 @@ func TestFilterBasic(t *testing.T) {
 		t.Fatal("Array not right shape")
 	}
 
-	if !slices.Equal[[]int](secondArray, expectedOutput) {
+	if !slices.Equal(secondArray, expectedOutput) {
 		t.Fatalf("Items not equal: %v, %v", secondArray, expectedOutput)
 	}
 }

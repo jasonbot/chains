@@ -165,7 +165,7 @@ func PermutationsWithReplacement[T any](vals []T) iter.Seq[[]T] {
 
 // CombinationsToLength will yield all combinations with replacement of
 // a specified length
-// { 1 2 3 }, 2 ->  { 1 } { 1 2 } { 1 3 } { 2 } { 2 1 } { 2 3 } { 3 } { 3 1 } { 3 2 }
+// { 1 2 3 }, 2 -> { 1 } { 1 2 } { 1 3 } { 2 } { 2 1 } { 2 3 } { 3 } { 3 1 } { 3 2 }
 func CombinationsToLength[T any](vals []T, length int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		placement := make([]T, len(vals))

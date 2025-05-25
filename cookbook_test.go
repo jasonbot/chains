@@ -12,7 +12,7 @@ func TestFilter(t *testing.T) {
 	toFilter := []int{1, 2, 3, 4}
 	filtered := []int{3, 4}
 
-	if !slices.Equal[[]int](
+	if !slices.Equal(
 		ChainFromSlice(toFilter).Filter(func(i int) bool { return i >= 3 }).Slice(),
 		filtered,
 	) {

@@ -13,7 +13,7 @@ func ToSlice[T any](input iter.Seq[T]) []T {
 	return endSlice
 }
 
-// Count returns the length of the exhusted iterator.
+// Count returns the length of the exhausted iterator.
 func Count[T any](input iter.Seq[T]) int {
 	var count int
 

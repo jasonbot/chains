@@ -15,7 +15,7 @@ type IterableSequenceJunction[T any, V comparable] struct {
 	iterable iter.Seq[T]
 }
 
-// ChainFromSlice creates an chainable IterableSequence from a slice.
+// ChainFromSlice creates an IterableSequence from a slice.
 func ChainFromSlice[T any](in []T) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: func(yield func(T) bool) {
@@ -28,7 +28,7 @@ func ChainFromSlice[T any](in []T) *IterableSequence[T] {
 	}
 }
 
-// Chain creates an chainable IterableSequence from an existing iterator.
+// Chain creates an IterableSequence from an existing iterator.
 func ChainFromIterator[T any](inFunc func(func(T) bool)) *IterableSequence[T] {
 	return &IterableSequence[T]{
 		iterable: inFunc,

@@ -1,3 +1,3 @@
-module github.com/jasonbot/chains
+module jasonscheirer.com/chains
 
 go 1.23.0
